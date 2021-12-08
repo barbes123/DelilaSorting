@@ -6,7 +6,8 @@
 FIRSTdomain=$1
 LASTdomain=$2
 activityCo60=$3
-#activityCs137=$3
+#$activityCs137=$3
+
 
 CUR_DIR=$(pwd)
 cd $CUR_DIR
@@ -15,8 +16,8 @@ echo "CUR_DIR $CUR_DIR"
 
 
 domnb=$FIRSTdomain
-echo "mDelila_raw_py_$domnb.spe" 
- if test -f "mDelila_raw_py_$domnb.spe" 
+echo "mEliade_raw_py_$domnb.spe" 
+ if test -f "mEliade_raw_py_$domnb.spe" 
    then
    echo "yessssssssssss"
    else
@@ -55,17 +56,7 @@ echo "Will run the calib for domains $FIRSTdomain upto $LASTdomain "
    then 
    	rm "fulldata.calib"   
    fi
-##################################
-    if test -f "resolution_1332.txt" 
-   then 
-   	rm "resolution_1332.txt"   
-   fi
-##################################   
-    if test -f "resolution_1173.txt" 
-   then 
-   	rm "resolution_1173.txt"   
-   fi
-##################################         
+##################################      
    
    
 
@@ -77,28 +68,28 @@ while test $domnb -le $LASTdomain
 do
  echo "Now starting calib for domain $domnb"	
  
- if [[ "$domnb" == "9999" ]] ||  [[ "$domnb" == "9999" ]]||  [[ "$domnb" == "9999" ]]||  [[ "$domnb" == "9999" ]];
+ if [[ "$domnb" == "109" ]] ||  [[ "$domnb" == "119" ]]||  [[ "$domnb" == "129" ]]||  [[ "$domnb" == "139" ]];
  then
-  lim1=800
+  lim1=600
   lim2=1600
-  fwhm=40
+  fwhm=4
   ampl=100
   echo "changed for core $domnb"
  else
-  lim1=400
-  lim2=1600
-  fwhm=40
-  ampl=20
+  lim1=1700
+  lim2=5000
+  fwhm=10
+  ampl=6
   echo "changed for segment $domnb"
  fi
  
- if test -f "mDelila_raw_py_$domnb.spe" 
+ if test -f "mEliade_raw_py_$domnb.spe" 
    then
       #get full data on calibration
-      #/data/live/IT/tools/RecalEnergy -spe mDelila_raw_py_$domnb.spe -fmt A 16384 -lim $lim1 $lim2 -dwa $fwhm $ampl -60Co -v 2 -poly1 -ener 1460.82
-      #/data/live/IT/tools/RecalEnergy -spe mDelila_raw_py_$domnb.spe -fmt A 16384 -lim $lim1 $lim2 -dwa $fwhm $ampl -60Co -v 2 -poly1 -ener 1460.82 > fulldata.calib
-      ~/EliadeSorting/EliadeTools/RecalEnergy -spe mDelila_raw_py_$domnb.spe -fmt A 16384 -lim $lim1 $lim2 -dwa $fwhm $ampl -60Co -v 2 -poly1
-      ~/EliadeSorting/EliadeTools/RecalEnergy -spe mDelila_raw_py_$domnb.spe -fmt A 16384 -lim $lim1 $lim2 -dwa $fwhm $ampl -60Co -v 2 -poly1 > fulldata.calib
+      #/data/live/IT/tools/RecalEnergy -spe mEliade_raw_py_$domnb.spe -fmt A 16384 -lim $lim1 $lim2 -dwa $fwhm $ampl -60Co -v 2 -poly1 -ener 1460.82
+      #/data/live/IT/tools/RecalEnergy -spe mEliade_raw_py_$domnb.spe -fmt A 16384 -lim $lim1 $lim2 -dwa $fwhm $ampl -60Co -v 2 -poly1 -ener 1460.82 > fulldata.calib
+      ~/EliadeSorting/EliadeTools/RecalEnergy -spe mEliade_raw_py_$domnb.spe -fmt A 16384 -lim $lim1 $lim2 -dwa $fwhm $ampl -60Co -40K -v 2 -poly1
+      ~/EliadeSorting/EliadeTools/RecalEnergy -spe mEliade_raw_py_$domnb.spe -fmt A 16384 -lim $lim1 $lim2 -dwa $fwhm $ampl -60Co -40K -v 2 -poly1 > fulldata.calib
       #delete first 14 lines
       awk 'NR > 14 { print }' fulldata.calib >  temp.calib
       
@@ -125,13 +116,19 @@ do
  	   grep '1332.513'  temp.calib >> Co60.temp      
  	   echo "Found"
 	fi	
+	if grep '1460.81' temp.calib	    
+	then
+           #echo -n "domain $domnb " >> Co60.calib 
+ 	   grep '1460.81'  temp.calib >> res.temp      
+ 	   echo "Found"
+	fi
 	if grep '#2' res.temp
 	then
  	   grep '#2'  res.temp >> data.calib      
  	   echo "Found"
 	fi            
    else 
-     echo no file "mDelila_raw_py_$domnb.spe" 
+     echo no file "mEliade_raw_py_$domnb.spe" 
      echo "domain $domnb #2     0  Slope = 0.000000    Cal1=[ -0.0000  1.000000 ]" >> eliade.calib       
      #echo "#2" >> eliade.calib 
      #sed -i "s/#2/$domnb/" eliade.calib
@@ -159,6 +156,8 @@ rm data.calib
 
 grep '1332.513' resolution.txt >> resolution_1332.txt
 grep '1173.238' resolution.txt >> resolution_1173.txt
+
+
 
 # case  $DIST in
 # ##########################################################################################################

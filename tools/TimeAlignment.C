@@ -35,7 +35,7 @@ void TimeAlignement(TH2 *matrix, float alignment_pos=0.)
     proj_y->GetXaxis()->SetRangeUser(max_value-30,max_value+30);
     proj_y->Fit(gaus,"MQ");
     proj_y->Draw();
-  //  c1->WaitPrimitive();
+   c1->WaitPrimitive();
     std::cout << "   Offset for coincID " << j+channel_offset << "  " << gaus->GetParameter(1) << std::endl;;
     outputFile << j+channel_offset << "  " << gaus->GetParameter(1) <<"\n";;
     proj_y->Reset();
