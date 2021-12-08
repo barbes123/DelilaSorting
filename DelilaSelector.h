@@ -92,6 +92,7 @@ public :
     UShort_t        core;
     UShort_t        segment;
     UShort_t        CS;//0 - no; 1 - yes
+    double          Time;
 
     //int make_board_ID(){return fMod*100}
     TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0){};
@@ -119,19 +120,20 @@ public :
 //  };
  
 //   std::deque<TDelilaEvent> eliadeQu;
-  std::deque<TDelilaEvent> coincQu_pulser;
-  std::deque<TDelilaEvent> coincQu_CS;
+//   std::deque<TDelilaEvent> coincQu_pulser;
+  std::deque<TDelilaEvent> coincQu_TA;//for time alignment
   std::deque<TDelilaEvent> outputQu;
-//   std::deque<TDelilaEvent> coincQu_segments;
+  std::deque<TDelilaEvent> gammagammaQu;
+  std::deque<TDelilaEvent> gammagammaQu_CS;
+  
 //   std::deque<TDelilaEvent> bgo_Qu;
 //   std::deque<float> enrergyQu;
   
-  std::map<int,std::deque<TDelilaEvent>> waitingQu;
+  std::map<int,std::deque<TDelilaEvent>> waitingQu; //for CS
 
 //   std::deque<TDelilaEvent> eliadeQu_sorted;
   std::map<unsigned int, TDelilaDetector > LUT_DELILA;
   std::map<int, int > LUT_TA;
-//   std::map<unsigned int, std::deque<TDelilaEvent> > coincQu_seg ;
 
  
  
@@ -171,11 +173,19 @@ public :
   TH2F* mSegments;//keV
   TH2F* mDelilaTD;
   
+  TH2F* mGammaGamma;
+  TH2F* mTimeDiff_gg;
+  TH1F* hMult_gg;
+  TH2F* mGammaGammaCS;
+  TH2F* mTimeDiff_gg_CS;
+  TH1F* hMult_gg_CS;
+
+  
   //Part For RoSPHERE
-  TH2F* mLaBr_raw;  
-  TH2F* mLaBr_kev;
-  TH1F* hLaBr_kev;
-  TH1F* hLaBrCS_kev;
+//   TH2F* mLaBr_raw;  
+//   TH2F* mLaBr_kev;
+//   TH1F* hLaBr_kev;
+//   TH1F* hLaBrCS_kev;
   
 //  TH2F* mDelilaSegEnergy;
 //   TH2F *mDomTimeDiff;
@@ -227,7 +237,8 @@ public :
    virtual void  Print_ELIADE_LookUpTable();
    virtual void  Print_TimeAlignment_LookUpTable();
    virtual float CalibDet(float,int);
-   virtual int CheckTimeAlignment(int to_domain);
+//    virtual int CheckTimeAlignment(int to_domain);
+   virtual int GetCoincTimeCorrection(int dom1, int dom2);
    
 
    ClassDef(DelilaSelector,0);
