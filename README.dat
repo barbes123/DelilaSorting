@@ -1,0 +1,9 @@
+DelilaSorting
+
+1. Put DelilaSorting in $HOME/DelilaSelector
+2. mkdir ../exp1/root_files [for raw root  files]
+   mkdir ../exp1/selector_files [for analysis]
+3. cp ~/DelilaSorting/run/* ../exp1/selector_files   
+4. edit ../exp1/selector_files/Delila_selector.C to set data_dir the full path to the data files
+5. add environmental variable: export DELILA_LUT="$HOME/DelilaSorting"
+4. do analysis from selector_files ./run_delila.sh run_nbr verson_nbr_first verson_nbr_last
