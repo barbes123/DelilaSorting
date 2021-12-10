@@ -31,7 +31,7 @@ void Delila_selector(UInt_t first_run=195,  UInt_t last_run=195, UInt_t vol0=1, 
          
         std::ostringstream options;
         options<<run<<","<<vol<<","<<","<<","<<0<<","<<"0";
-        ch->Process("~/DelilaSorting/DelilaSelector.C+",options.str().c_str(),1e6);
+        ch->Process("~/DelilaSorting/DelilaSelector.C+",options.str().c_str());
          
 	};   
   };
