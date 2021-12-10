@@ -73,8 +73,8 @@ public :
     TTree          *outputTree;
 
 
-  UChar_t	 uMod; 
-  UChar_t	 uChannel; 
+//   UChar_t	 uMod; 
+//   UChar_t	 uChannel; 
 
  class TDelilaEvent {
  public:
@@ -87,21 +87,24 @@ public :
     UShort_t        det_def;//0 - nothing; 1 - core; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 9 - pulser
     float	        EnergyCal;
     UShort_t        domain;
-    UShort_t        cs_domain;
+    int             cs_domain;
     UShort_t        channel;//ch daq
     UShort_t        core;
     UShort_t        segment;
     UShort_t        CS;//0 - no; 1 - yes
-    double          Time;
+    double_t        Time;
+    Float_t         theta;
+    Float_t	        phi;  
 
     //int make_board_ID(){return fMod*100}
-    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0){};
+    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0),Time(0){};
  };
 
   class TDelilaDetector { 
   public:
     Int_t	 dom;
     Int_t	 ch;//ch daq
+    Int_t	 serial;
     Float_t  theta;
     Float_t	 phi;  
     UShort_t detType;//0 - nothing; 1 - core; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 9 - pulser
@@ -173,6 +176,8 @@ public :
   TH2F* mSegments;//keV
   TH2F* mDelilaTD;
   
+  
+  TH2F* mThetaPhi; 
   TH2F* mGammaGamma;
   TH2F* mTimeDiff_gg;
   TH1F* hMult_gg;
