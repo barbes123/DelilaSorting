@@ -73,8 +73,8 @@ public :
     TTree          *outputTree;
 
 
-  UChar_t	 uMod; 
-  UChar_t	 uChannel; 
+//   UChar_t	 uMod; 
+//   UChar_t	 uChannel; 
 
  class TDelilaEvent {
  public:
@@ -87,21 +87,24 @@ public :
     UShort_t        det_def;//0 - nothing; 1 - core; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 9 - pulser
     float	        EnergyCal;
     UShort_t        domain;
-    UShort_t        cs_domain;
+    int             cs_domain;
     UShort_t        channel;//ch daq
     UShort_t        core;
     UShort_t        segment;
     UShort_t        CS;//0 - no; 1 - yes
-    double          Time;
-
-    //int make_board_ID(){return fMod*100}
-    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0){};
+    double_t        Time;
+    Float_t         theta;
+    Float_t	        phi;
+    double_t        bgo_time_diff;
+   //int make_board_ID(){return fMod*100}
+    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0),Time(0),bgo_time_diff(-1){};
  };
 
   class TDelilaDetector { 
   public:
     Int_t	 dom;
     Int_t	 ch;//ch daq
+    Int_t	 serial;
     Float_t  theta;
     Float_t	 phi;  
     UShort_t detType;//0 - nothing; 1 - core; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 9 - pulser
@@ -129,7 +132,8 @@ public :
 //   std::deque<TDelilaEvent> bgo_Qu;
 //   std::deque<float> enrergyQu;
   
-  std::map<int,std::deque<TDelilaEvent>> waitingQu; //for CS
+  std::map<int,std::deque<TDelilaEvent>> waitingQu_gamma; //for CeBr
+  std::map<int,std::deque<TDelilaEvent>> waitingQu_bgo; //for CS
 
 //   std::deque<TDelilaEvent> eliadeQu_sorted;
   std::map<unsigned int, TDelilaDetector > LUT_DELILA;
@@ -173,6 +177,8 @@ public :
   TH2F* mSegments;//keV
   TH2F* mDelilaTD;
   
+  
+  TH2F* mThetaPhi; 
   TH2F* mGammaGamma;
   TH2F* mTimeDiff_gg;
   TH1F* hMult_gg;
@@ -239,6 +245,11 @@ public :
    virtual float CalibDet(float,int);
 //    virtual int CheckTimeAlignment(int to_domain);
    virtual int GetCoincTimeCorrection(int dom1, int dom2);
+   virtual void cs();
+   virtual void gamma_gamma();
+   virtual void gamma_gamma_cs(TDelilaEvent &ev_);
+   virtual void time_alignment();
+   
    
 
    ClassDef(DelilaSelector,0);

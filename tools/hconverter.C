@@ -70,7 +70,7 @@ void ConvertTH1F (TH1* h);
 void ConvertTH2F (TH2* m);
 
 
-void hconverter(TString file="toconvertfile.root", TString hname="mEliade_raw", Double_t maxbin_=16384, UInt_t rebin=0, TString foldername1="", TString foldername2="",int fortkt=1)
+void hconverter(TString file="toconvertfile.root", TString hname="mDelila_raw", Double_t maxbin_=16384, UInt_t rebin=0, TString foldername1="", TString foldername2="",int fortkt=1)
 
 {   
   if (fortkt==0) tkt=false;
