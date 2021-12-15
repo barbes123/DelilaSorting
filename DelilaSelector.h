@@ -94,10 +94,10 @@ public :
     UShort_t        CS;//0 - no; 1 - yes
     double_t        Time;
     Float_t         theta;
-    Float_t	        phi;  
-
-    //int make_board_ID(){return fMod*100}
-    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0),Time(0){};
+    Float_t	        phi;
+    double_t        bgo_time_diff;
+   //int make_board_ID(){return fMod*100}
+    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0),Time(0),bgo_time_diff(-1){};
  };
 
   class TDelilaDetector { 
@@ -132,7 +132,8 @@ public :
 //   std::deque<TDelilaEvent> bgo_Qu;
 //   std::deque<float> enrergyQu;
   
-  std::map<int,std::deque<TDelilaEvent>> waitingQu; //for CS
+  std::map<int,std::deque<TDelilaEvent>> waitingQu_gamma; //for CeBr
+  std::map<int,std::deque<TDelilaEvent>> waitingQu_bgo; //for CS
 
 //   std::deque<TDelilaEvent> eliadeQu_sorted;
   std::map<unsigned int, TDelilaDetector > LUT_DELILA;
@@ -244,6 +245,11 @@ public :
    virtual float CalibDet(float,int);
 //    virtual int CheckTimeAlignment(int to_domain);
    virtual int GetCoincTimeCorrection(int dom1, int dom2);
+   virtual void cs();
+   virtual void gamma_gamma();
+   virtual void gamma_gamma_cs(TDelilaEvent &ev_);
+   virtual void time_alignment();
+   
    
 
    ClassDef(DelilaSelector,0);

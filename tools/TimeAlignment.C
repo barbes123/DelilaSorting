@@ -35,7 +35,7 @@ void TimeAlignement(TH2 *matrix, float alignment_pos=0.)
     proj_y->Draw();
     gaus->SetParameter(1,max_value);
     std::cout<<"max_value "<<max_value<<"\n";
-    c1->WaitPrimitive();
+//     c1->WaitPrimitive();
     std::cout << "   Offset for coincID " << j+channel_offset << "  " << gaus->GetParameter(1) << std::endl;;
     outputFile << j+channel_offset-1 << "  " << gaus->GetParameter(1) <<"\n";;
     proj_y->Reset();
