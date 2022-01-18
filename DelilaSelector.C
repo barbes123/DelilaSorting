@@ -39,23 +39,26 @@ int addBackMode = 0; //0 - no addback; 1- addback;//not in use for ELIFANT
 bool blGammaGamma = true;
 bool blGammaGammaCS = true;
 bool blCS = true;
+bool blTriggerMode = false;//to reset the queues after each trigger - to be implemented
 
 
 bool debug = false;
 // bool doCS = false;
 
-const int NumberOfClovers = 2;
+// const int NumberOfClovers = 2;
 const int max_domain = 400;
-const int max_mod = 7;
-
-
-// const int current_clover = 1;
-const int nbr_of_boards = 8;
 const int nbr_of_ch = 200;
+// const int max_mod = 7;
+// const int current_clover = 1;
+// const int nbr_of_boards = 8;
+
+
+// ULong64_t lastTimeStampTrigger = 0;
+
 // const int zero_channel = 101; //for time allignement
-ULong64_t lastTime_pulser = 0;
-ULong64_t lastTime_dom0 = 0;
-ULong64_t lastTimeStamp = 0;
+// ULong64_t lastTime_pulser = 0;
+// ULong64_t lastTime_dom0 = 0;
+// ULong64_t lastTimeStamp = 0;
 
 double beta = 0;
 
@@ -83,7 +86,6 @@ void DelilaSelector::Read_ELIADE_LookUpTable() {
   std::stringstream LUTFile;
   LUTFile << pLUT_Path <<"/"<<"LUT_DELILA.dat";
   //LUTFile << LUT_Directory << "LUT_ELIADE.dat";
-  const int nbr_of_ch = 200;
   std::ifstream lookuptable(LUTFile.str().c_str());
 
   if (!lookuptable.good()) {
@@ -397,6 +399,22 @@ void DelilaSelector::SlaveBegin(TTree * /*tree*/)
    mGammaGammaCS_DC->GetYaxis()->SetTitle("keV");
    fOutput->Add(mGammaGammaCS_DC);
    
+   mEnergyTimeDiff_trigger = new TH2F("mEnergyTimeDiff_trigger", "mEnergyTimeDiff_trigger", 16384, -0.5, 16383.5, 4e3, -2e5, 2e5);
+   mEnergyTimeDiff_trigger->GetXaxis()->SetTitle("Energy");
+   mEnergyTimeDiff_trigger->GetYaxis()->SetTitle("Time diff, ps");
+   fOutput->Add(mEnergyTimeDiff_trigger);
+   
+   mDomainTimeDiff_trigger = new TH2F("mDomainTimeDiff_trigger", "mDomainTimeDiff_trigger", max_domain, 0, max_domain, 4e3, -2e5, 2e5);
+   mDomainTimeDiff_trigger->GetXaxis()->SetTitle("domain");
+   mDomainTimeDiff_trigger->GetYaxis()->SetTitle("Time diff, ps");
+   fOutput->Add(mDomainTimeDiff_trigger);
+   
+   hTriggerTrigger = new TH1F("hTriggerTrigger", "hTriggerTrigger", 4e3, -2e5, 2e5);
+   hTriggerTrigger->GetYaxis()->SetTitle("Counts");
+   hTriggerTrigger->GetXaxis()->SetTitle("Time diff, ps");
+   hTriggerTrigger->SetTitle("Time between two trigger signals");
+   fOutput->Add(hTriggerTrigger);
+   
 //    mTimeDiffCS = new TH2F("mTimeDiffCS", "mTimeDiffCS", max_domain, 0, max_domain, 4e3, -2e5, 2e5);
 //    mTimeDiffCS->GetXaxis()->SetTitle("domain");
 //    mTimeDiffCS->GetYaxis()->SetTitle("ps/bin");
@@ -494,7 +512,7 @@ Bool_t DelilaSelector::Process(Long64_t entry)
     //Check that daq_ch is defined in LUT
     std::map<unsigned int, TDelilaDetector >::iterator it = LUT_DELILA.find(daq_ch);
     if(it == LUT_DELILA.end()){return kTRUE;};
-
+    
     DelilaEvent.channel = daq_ch;
     DelilaEvent.det_def = LUT_DELILA[daq_ch].detType;
     DelilaEvent.domain = LUT_DELILA[daq_ch].dom;   
@@ -502,8 +520,32 @@ Bool_t DelilaSelector::Process(Long64_t entry)
     
     mDelila_raw->Fill(domain,DelilaEvent.fEnergy);
     hDomainHit->Fill(domain);
+
+
+//Check if the tree is time sorted
+//     if (lastDelilaEvent.fTimeStamp > DelilaEvent.fTimeStamp){std::cout<<"Warning: .fTimeStamp TTree may be not sorted by time \n";return kTRUE;};
+    
+//      DelilaEvent.fTimeStamp = DelilaEvent.fTimeStamp + LUT_DELILA[daq_ch].TimeOffset;
+//      DelilaEvent.Time = 1000*DelilaEvent.fTimeStamp + DelilaEvent.fTimeStampFS;
+//         DelilaEvent.Time = DelilaEvent.fTimeStamp*1.0;
+     DelilaEvent.Time = DelilaEvent.fTimeStampFS;
+ 
+     
+     double_t time_diff_trigger = DelilaEvent.Time - LastTriggerEvent.Time;
+     
+     if (DelilaEvent.det_def == 99){
+        hTriggerTrigger->Fill(time_diff_trigger);
+        LastTriggerEvent = DelilaEvent;
+        return kTRUE;
+        
+    };
+    
+     if (lastDelilaEvent.Time > DelilaEvent.Time){std::cout<<"Warning: .Time  TTree may be not sorted by time \n";};
+     hTimeSort->Fill(DelilaEvent.Time - lastDelilaEvent.Time);
+     
     
     if (DelilaEvent.det_def == 9){return kTRUE;};
+    
     
 	DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
     
@@ -524,19 +566,12 @@ Bool_t DelilaSelector::Process(Long64_t entry)
 	
 	mDelila->Fill(domain,DelilaEvent.EnergyCal);
     mDelilaDC->Fill(domain,DelilaEvent.EnergyDC);
-    //Check if the tree is time sorted
-    if (lastDelilaEvent.fTimeStamp > DelilaEvent.fTimeStamp){std::cout<<"Warning: .fTimeStamp TTree may be not sorted by time \n";return kTRUE;};
     
-     DelilaEvent.fTimeStamp = DelilaEvent.fTimeStamp + LUT_DELILA[daq_ch].TimeOffset;
-     
-//      DelilaEvent.Time = 1000*DelilaEvent.fTimeStamp + DelilaEvent.fTimeStampFS;
-//         DelilaEvent.Time = DelilaEvent.fTimeStamp*1.0;
-         DelilaEvent.Time = DelilaEvent.fTimeStampFS;
-
-     if (lastDelilaEvent.Time > DelilaEvent.Time){std::cout<<"Warning: .Time  TTree may be not sorted by time \n";};
-        
-        
-     hTimeSort->Fill(DelilaEvent.Time - lastDelilaEvent.Time);
+    if (DelilaEvent.det_def == 3){
+        mDomainTimeDiff_trigger->Fill(domain,time_diff_trigger);
+        mEnergyTimeDiff_trigger->Fill(DelilaEvent.EnergyCal,time_diff_trigger);
+    };
+    
         
      time_alignment();   
 

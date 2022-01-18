@@ -145,7 +145,9 @@ public :
   TDelilaEvent DelilaEvent;  
   TDelilaEvent DelilaEventCS;
   TDelilaEvent lastDelilaEvent;  
-  TDelilaEvent lastEliadeZeroEvent;  
+  TDelilaEvent lastEliadeZeroEvent;
+  TDelilaEvent LastTriggerEvent;  
+  
 //   TDelilaEventCoinc EliadeCoincEvent[4];
   
   TDelilaEvent startEventCore;  
@@ -173,14 +175,18 @@ public :
   TH2F* mDelilaCS;//keV
   TH1F* hDelila;//keV
   TH1F* hDelilaCS;//keV
-  TH2F* mDelila_raw;
+  TH1F* hTriggerTrigger;
   
+  TH2F* mDelila_raw;
   TH2F* mDelilaDC;//keV
   TH2F* mDelilaCS_DC;//keV
   TH1F* hDelilaDC;//keV
   TH1F* hDelilaCS_DC;//keV
   TH2F* mGammaGammaDC;
   TH2F* mGammaGammaCS_DC;
+  
+  TH2F* mEnergyTimeDiff_trigger;
+  TH2F* mDomainTimeDiff_trigger;
 
 
   
