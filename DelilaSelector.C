@@ -37,8 +37,8 @@ using namespace std;
 
 int addBackMode = 0; //0 - no addback; 1- addback;//not in use for ELIFANT
 bool blGammaGamma = true;
-bool blGammaGammaCS = false;
-bool blCS = false;
+bool blGammaGammaCS = true;
+bool blCS = true;
 
 
 bool debug = false;
@@ -56,6 +56,8 @@ const int nbr_of_ch = 200;
 ULong64_t lastTime_pulser = 0;
 ULong64_t lastTime_dom0 = 0;
 ULong64_t lastTimeStamp = 0;
+
+double beta = 0;
 
 // std::unordered_set<int> cores = { 109,119,129,139,171,172};
 std::unordered_set<int> pulsers = { 150,151,152,153};
@@ -106,6 +108,8 @@ void DelilaSelector::Read_ELIADE_LookUpTable() {
     //  std::cout<<" curDfalseet.ch  "<<curDet.ch <<" curDet.TimeOffset " <<curDet.TimeOffset<<std::endl;
       
       if (curDet.ch >= 0) {
+          curDet.theta *= TMath::DegToRad();
+          curDet.phi *= TMath::DegToRad();
 	//theta *= TMath::DegToRad();
 	//phi *= TMath::DegToRad();
 //	TVector3 DetPos;
@@ -232,8 +236,11 @@ void DelilaSelector::Begin(TTree * tree)
   TString option = GetOption();
   toks = option.Tokenize(",");
   TString RunID = ((TObjString*) toks->At(0))->GetString();
-  addBackMode = atoi(((TObjString*) toks->At(2))->GetString());
+  beta = ((TObjString*) toks->At(2))->GetString().Atof();
+  addBackMode = atoi(((TObjString*) toks->At(3))->GetString());
   std::cout << "addBackMode  " << addBackMode <<std::endl;
+  
+  std::cout<<"Beta is "<<beta<<" % \n";
 
 //   TString VolID = ((TObjString*) toks->At(1))->GetString();
 // 
@@ -321,10 +328,21 @@ void DelilaSelector::SlaveBegin(TTree * /*tree*/)
    hDelila->GetXaxis()->SetTitle("keV");
    fOutput->Add(hDelila);
    
+   hDelilaDC = new TH1F("hDelilaDC", "hDelilaDC", 4096, -0.5, 16383.5);
+   hDelilaDC->GetYaxis()->SetTitle("counts");
+   hDelilaDC->GetXaxis()->SetTitle("keV");
+   fOutput->Add(hDelilaDC);
+   
+   
    hDelilaCS = new TH1F("hDelilaCS", "hDelilaCS", 4096, -0.5, 16383.5);
    hDelilaCS->GetYaxis()->SetTitle("counts");
    hDelilaCS->GetXaxis()->SetTitle("keV");
    fOutput->Add(hDelilaCS);
+   
+   hDelilaCS_DC = new TH1F("hDelilaCS_DC", "hDelilaCS_DC", 4096, -0.5, 16383.5);
+   hDelilaCS_DC->GetYaxis()->SetTitle("counts");
+   hDelilaCS_DC->GetXaxis()->SetTitle("keV");
+   fOutput->Add(hDelilaCS_DC);
    
    hTimeDiffPulser = new TH1F("hTimeDiffPulser", "hTimeDiffPulser", 1000, -99.5, 899.5);
    fOutput->Add(hTimeDiffPulser);
@@ -339,16 +357,25 @@ void DelilaSelector::SlaveBegin(TTree * /*tree*/)
    mDelila->GetYaxis()->SetTitle("keV");
    fOutput->Add(mDelila);
    
-   mThetaPhi = new TH2F("mThetaPhi", "mThetaPhi", 90,60,150,360,0,360);
-   mThetaPhi->GetXaxis()->SetTitle("theta, degrees");
-   mThetaPhi->GetYaxis()->SetTitle("phi, degrees");
-   fOutput->Add(mThetaPhi);
-   
+   mDelilaDC = new TH2F("mDelilaDC", "mDelilaDC", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
+   mDelilaDC->GetXaxis()->SetTitle("domain");
+   mDelilaDC->GetYaxis()->SetTitle("keV");
+   fOutput->Add(mDelilaDC);   
    
    mDelilaCS = new TH2F("mDelilaCS", "mDelilaCS", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
    mDelilaCS->GetXaxis()->SetTitle("domain");
    mDelilaCS->GetYaxis()->SetTitle("keV");
    fOutput->Add(mDelilaCS);
+   
+   mDelilaCS_DC = new TH2F("mDelilaCS_DC", "mDelilaCS_DC", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
+   mDelilaCS_DC->GetXaxis()->SetTitle("domain");
+   mDelilaCS_DC->GetYaxis()->SetTitle("keV");
+   fOutput->Add(mDelilaCS_DC);
+   
+   mThetaPhi = new TH2F("mThetaPhi", "mThetaPhi", 90,60,150,360,0,360);
+   mThetaPhi->GetXaxis()->SetTitle("theta, degrees");
+   mThetaPhi->GetYaxis()->SetTitle("phi, degrees");
+   fOutput->Add(mThetaPhi);
       
    mGammaGamma = new TH2F("mGammaGamma", "mGammaGamma", 4096, -0.5, 16383.5, 4096, -0.5, 16383.5);
    mGammaGamma->GetXaxis()->SetTitle("keV");
@@ -360,20 +387,30 @@ void DelilaSelector::SlaveBegin(TTree * /*tree*/)
    mGammaGammaCS->GetYaxis()->SetTitle("keV");
    fOutput->Add(mGammaGammaCS);
    
+   mGammaGammaDC = new TH2F("mGammaGammaDC", "mGammaGammaDC", 4096, -0.5, 16383.5, 4096, -0.5, 16383.5);
+   mGammaGammaDC->GetXaxis()->SetTitle("keV");
+   mGammaGammaDC->GetYaxis()->SetTitle("keV");
+   fOutput->Add(mGammaGammaDC);
+   
+   mGammaGammaCS_DC = new TH2F("mGammaGammaCS_DC", "mGammaGammaCS_DC", 4096, -0.5, 16383.5, 4096, -0.5, 16383.5);
+   mGammaGammaCS_DC->GetXaxis()->SetTitle("keV");
+   mGammaGammaCS_DC->GetYaxis()->SetTitle("keV");
+   fOutput->Add(mGammaGammaCS_DC);
+   
 //    mTimeDiffCS = new TH2F("mTimeDiffCS", "mTimeDiffCS", max_domain, 0, max_domain, 4e3, -2e5, 2e5);
 //    mTimeDiffCS->GetXaxis()->SetTitle("domain");
 //    mTimeDiffCS->GetYaxis()->SetTitle("ps/bin");
 //    fOutput->Add(mTimeDiffCS);
       
-   mSegments = new TH2F("mSegments", "mSegments", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
-   mSegments->GetXaxis()->SetTitle("domain");
-   mSegments->GetYaxis()->SetTitle("keV");
-   fOutput->Add(mSegments);
+//    mSegments = new TH2F("mSegments", "mSegments", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
+//    mSegments->GetXaxis()->SetTitle("domain");
+//    mSegments->GetYaxis()->SetTitle("keV");
+//    fOutput->Add(mSegments);
    
-   mCores = new TH2F("mCores", "mCores", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
-   mCores->GetXaxis()->SetTitle("domain");
-   mCores->GetYaxis()->SetTitle("keV");
-   fOutput->Add(mCores);
+//    mCores = new TH2F("mCores", "mCores", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
+//    mCores->GetXaxis()->SetTitle("domain");
+//    mCores->GetYaxis()->SetTitle("keV");
+//    fOutput->Add(mCores);
    
    mTimeCalib = new TH2F("mTimeCalib", "mTimeCalib", 10000, 0, 10000, 4e3, -2e5, 2e5);
    mTimeCalib->GetXaxis()->SetTitle("coinc ID");
@@ -459,24 +496,36 @@ Bool_t DelilaSelector::Process(Long64_t entry)
     if(it == LUT_DELILA.end()){return kTRUE;};
 
     DelilaEvent.channel = daq_ch;
-	DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
-	DelilaEvent.domain = LUT_DELILA[daq_ch].dom;
     DelilaEvent.det_def = LUT_DELILA[daq_ch].detType;
-    DelilaEvent.cs_domain = LUT_DELILA[daq_ch].cs_dom;
+    DelilaEvent.domain = LUT_DELILA[daq_ch].dom;   
+    int domain = DelilaEvent.domain;
+    
+    mDelila_raw->Fill(domain,DelilaEvent.fEnergy);
+    hDomainHit->Fill(domain);
+    
+    if (DelilaEvent.detType == 9){return kTRUE;};
+    
+	DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
+    
+    double costheta = TMath::Cos(LUT_DELILA[daq_ch].theta);
+    DelilaEvent.EnergyDC = DelilaEvent.EnergyCal*(1./sqrt(1 - beta*beta) * (1 - beta*costheta));
+	DelilaEvent.cs_domain = LUT_DELILA[daq_ch].cs_dom;
+    
     DelilaEvent.theta= LUT_DELILA[daq_ch].theta;
     DelilaEvent.phi= LUT_DELILA[daq_ch].phi;
         
     hDetTypeHit->Fill(DelilaEvent.det_def);
     mThetaPhi->Fill(DelilaEvent.theta, DelilaEvent.phi);
 	
-    int domain = DelilaEvent.domain;
+    
     if ((DelilaEvent.fEnergy < LUT_DELILA[daq_ch].upperThreshold))  {/*std::cout<<DelilaEvent.fEnergy<< " "<< LUT_ELIADE[daq_ch].upperThreshold<<std::endl; */return kTRUE;}
             
-  	hDomainHit->Fill(domain);
-	mDelila_raw->Fill(domain,DelilaEvent.fEnergy);
+  	
+	
 	mDelila->Fill(domain,DelilaEvent.EnergyCal);
+    mDelilaDC->Fill(domain,DelilaEvent.EnergyDC);
     //Check if the tree is time sorted
-    if (lastDelilaEvent.fTimeStamp > DelilaEvent.fTimeStamp){std::cout<<"Warning: .fTimeStamp TTree may be not sorted by time \n";};
+    if (lastDelilaEvent.fTimeStamp > DelilaEvent.fTimeStamp){std::cout<<"Warning: .fTimeStamp TTree may be not sorted by time \n";return kTRUE;};
     
      DelilaEvent.fTimeStamp = DelilaEvent.fTimeStamp + LUT_DELILA[daq_ch].TimeOffset;
      
@@ -575,7 +624,7 @@ void DelilaSelector::cs()
     double_t time_diff_cs = 0;
     int cs_dom = DelilaEvent.cs_domain;
 
-    if (DelilaEvent.det_def == 3) {waitingQu_gamma[cs_dom].push_back(DelilaEvent); hDelila->Fill(DelilaEvent.EnergyCal);}
+    if (DelilaEvent.det_def == 3) {waitingQu_gamma[cs_dom].push_back(DelilaEvent); hDelila->Fill(DelilaEvent.EnergyCal);hDelilaDC->Fill(DelilaEvent.EnergyDC);}
     if (DelilaEvent.det_def == 5) waitingQu_bgo[cs_dom].push_back(DelilaEvent);
         
         if ((!waitingQu_gamma[cs_dom].empty())&&(!waitingQu_bgo.empty()))
@@ -612,7 +661,7 @@ void DelilaSelector::cs()
               if (abs(DelilaEvent.Time - it2_->Time)>gate) 
               {
                   output_pQu.push(*it2_);
-                  if (it2_->CS ==0){hDelilaCS->Fill(it2_->EnergyCal);mDelilaCS->Fill(it2_->cs_domain, it2_->EnergyCal);gamma_gamma_cs(*it2_);};
+                  if (it2_->CS ==0){hDelilaCS->Fill(it2_->EnergyCal);mDelilaCS->Fill(it2_->cs_domain, it2_->EnergyCal);gamma_gamma_cs(*it2_);hDelilaCS_DC->Fill(it2_->EnergyDC);mDelilaCS_DC->Fill(it2_->cs_domain, it2_->EnergyCal);};
                   
                   it2_=waitingQu_gamma[cs_dom].erase(it2_);
               }
@@ -640,6 +689,7 @@ void DelilaSelector::gamma_gamma()
                   for (; it2__ != gammagammaQu.end(); ++it2__){
                       if (it1__ == it2__) continue;
                       mGammaGamma->Fill((*it1__).EnergyCal, (*it2__).EnergyCal);
+                      mGammaGammaDC->Fill((*it1__).EnergyCal, (*it2__).EnergyCal);
                   };
                 };
                 gammagammaQu.clear();
@@ -668,6 +718,7 @@ void DelilaSelector::gamma_gamma_cs(TDelilaEvent &ev_)
                   for (; it2__ != gammagammaQu_CS.end(); ++it2__){
                       if (it1__ == it2__) continue;
                       mGammaGammaCS->Fill((*it1__).EnergyCal, (*it2__).EnergyCal);
+                      mGammaGammaCS_DC->Fill((*it1__).EnergyCal, (*it2__).EnergyCal);
                   };
                 };
                 gammagammaQu_CS.clear();

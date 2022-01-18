@@ -86,6 +86,7 @@ public :
     UShort_t	    fEnergyShort;//ChargeShot  
     UShort_t        det_def;//0 - nothing; 1 - core; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 9 - pulser
     float	        EnergyCal;
+    float           EnergyDC;
     UShort_t        domain;
     int             cs_domain;
     UShort_t        channel;//ch daq
@@ -173,8 +174,16 @@ public :
   TH1F* hDelila;//keV
   TH1F* hDelilaCS;//keV
   TH2F* mDelila_raw;
-  TH2F* mCores;//keV
-  TH2F* mSegments;//keV
+  
+  TH2F* mDelilaDC;//keV
+  TH2F* mDelilaCS_DC;//keV
+  TH1F* hDelilaDC;//keV
+  TH1F* hDelilaCS_DC;//keV
+  TH2F* mGammaGammaDC;
+  TH2F* mGammaGammaCS_DC;
+
+
+  
   TH2F* mDelilaTD;
   
   
