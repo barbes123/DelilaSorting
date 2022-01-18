@@ -60,8 +60,8 @@ ULong64_t lastTimeStamp = 0;
 double beta = 0;
 
 // std::unordered_set<int> cores = { 109,119,129,139,171,172};
-std::unordered_set<int> pulsers = { 150,151,152,153};
-std::unordered_set<int> crystal2mask = {1,3,5};
+//std::unordered_set<int> pulsers = { 150,151,152,153};
+//std::unordered_set<int> crystal2mask = {1,3,5};
 //std::unordered_set<int> frontsegments = {};
 //std::unordered_set<int> cores = { 101,111,121};
 
@@ -503,7 +503,7 @@ Bool_t DelilaSelector::Process(Long64_t entry)
     mDelila_raw->Fill(domain,DelilaEvent.fEnergy);
     hDomainHit->Fill(domain);
     
-    if (DelilaEvent.detType == 9){return kTRUE;};
+    if (DelilaEvent.det_def == 9){return kTRUE;};
     
 	DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
     
