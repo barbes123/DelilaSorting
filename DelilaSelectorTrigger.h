@@ -151,7 +151,7 @@ public :
   std::map<unsigned int, TDelilaDetector > LUT_DELILA;  
   std::map<int, int > LUT_TA;
   std::map<int, double_t > LUT_TA_TRG;
-  std::map<int, int > LUT_COINC;
+  std::map<int, int > LUT_CONF;
 
   TDelilaEvent DelilaEvent;  
   TDelilaEvent DelilaEventCS;
