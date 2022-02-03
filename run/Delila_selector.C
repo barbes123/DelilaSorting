@@ -28,9 +28,9 @@ void Delila_selector(UInt_t first_run=195,  UInt_t last_run=195, UInt_t vol0=1, 
         ifile<<Form("%s/run%s_%s_ssgant1.root", data_dir.c_str(), szRun.c_str(),szVol.c_str());
         std::cout<<"File "<<ifile.str().c_str()<<std::endl;  
         ch->Add(Form("%s/run%s_%s_ssgant1.root", data_dir.c_str(), szRun.c_str(),szVol.c_str()));
-         
+        double beta=0.1; 
         std::ostringstream options;
-        options<<run<<","<<vol<<","<<","<<","<<0<<","<<"0";
+        options<<run<<","<<vol<<","<<beta<<","<<","<<0<<","<<"0";
         ch->Process("~/DelilaSorting/DelilaSelector.C+",options.str().c_str());
          
 	};   

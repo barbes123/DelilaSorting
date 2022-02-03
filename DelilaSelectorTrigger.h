@@ -1,14 +1,14 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Tue Mar 23 13:02:03 2021 by ROOT version 6.22/06
-// from TTree DelilaSelector/Energy Station
+// from TTree DelilaSelectorTrigger/Energy Station
 // found on file: run1005_03.root
 //////////////////////////////////////////////////////////
 
 #pragma once
 
-#ifndef DelilaSelector_h
-#define DelilaSelector_h
+#ifndef DelilaSelectorTrigger_h
+#define DelilaSelectorTrigger_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -65,7 +65,7 @@
 // Headers needed by this particular selector
 
 
-class DelilaSelector : public TSelector {
+class DelilaSelectorTrigger : public TSelector {
 public :
     TTreeReader     fReader;  //!the tree reader
     TTree          *fChain = 0;   //!pointer to the analyzed TTree or TChain
@@ -88,18 +88,20 @@ public :
     float	        EnergyCal;
     float           EnergyDC;
     UShort_t        domain;
-    int             cs_domain;
+    UShort_t        cs_domain;
     UShort_t        channel;//ch daq
-    UShort_t        core;
-    UShort_t        segment;
     UShort_t        CS;//0 - no; 1 - yes
     double_t        Time;
+    double_t        TimeTrg;
+    double_t        TimeBunch;
     Float_t         theta;
     Float_t	        phi;
     double_t        bgo_time_diff;
-    Int_t           trg;
+    ULong64_t       trg;
+    Int_t           bunch;
+    Int_t           fold;
    //int make_board_ID(){return fMod*100}
-    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0),Time(0),bgo_time_diff(-1),trg(0){};
+    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0),Time(0),bgo_time_diff(-1),trg(0),bunch(0){};
  };
 
   class TDelilaDetector { 
@@ -128,9 +130,11 @@ public :
 //   std::deque<TDelilaEvent> coincQu_pulser;
   std::deque<TDelilaEvent> coincQu_TA;//for time alignment
   std::deque<TDelilaEvent> outputQu;
-  std::deque<TDelilaEvent> gammagammaQu;
+//   std::deque<TDelilaEvent> gammagammaQu;
   std::deque<TDelilaEvent> gammagammaQu_CS;
   std::deque<TDelilaEvent> ggLaBr_HPGe_Qu;
+  std::deque<TDelilaEvent> ggBGO_Qu;
+  std::deque<TDelilaEvent> foldQu;
 
   
 //   std::deque<TDelilaEvent> bgo_Qu;
@@ -144,18 +148,17 @@ public :
 
 
 //   std::deque<TDelilaEvent> eliadeQu_sorted;
-  std::map<unsigned int, TDelilaDetector > LUT_DELILA;
+  std::map<unsigned int, TDelilaDetector > LUT_DELILA;  
   std::map<int, int > LUT_TA;
   std::map<int, double_t > LUT_TA_TRG;
   std::map<int, int > LUT_COINC;
 
- 
- 
   TDelilaEvent DelilaEvent;  
   TDelilaEvent DelilaEventCS;
   TDelilaEvent lastDelilaEvent;  
   TDelilaEvent lastEliadeZeroEvent;
-  TDelilaEvent LastTriggerEvent;  
+  TDelilaEvent LastTriggerEvent;
+  TDelilaEvent LastBunchEvent;    
   
   TDelilaEvent PulserEvent;
   TDelilaEvent DomainZeroEvent;    
@@ -200,10 +203,12 @@ public :
 
   std::map<UInt_t, std::string> detector_name;
 
-
-  
-  
   TH1F* hTriggerTrigger;
+  TH1F* hBunchBunch;
+  TH1F* hNBunch;
+  TH1F* hBunchFold;
+  TH2F* mFoldEnergy;
+  
   TH2F* mDelila;
   TH2F* mDelila_raw;
   TH2F* mDelilaCS;
@@ -225,6 +230,7 @@ public :
   
   TH2F* mEnergyTimeDiff_trigger;
   TH2F* mDomainTimeDiff_trigger;
+  TH2F* mDomainTimeDiff_bunch;
   
 //   std::map<int, TH2F*> mapTimeEnergy;
 
@@ -254,6 +260,12 @@ public :
   std::map<int, TH2F*> mGG_CS_long;
   std::map<int, TH2F*> mGG_DC_long;
   std::map<int, TH2F*> mGG_CS_DC_long;
+  
+  std::map<int, TH2F*> mTimeDiff;
+
+//   TH2F* mTimeDiff_trg_laBr;
+//   TH2F* mTimeDiff_trg_bgo;
+//   TH2F* mTimeDiff_trg_hpge;
 
   std::map<UInt_t, std::string> gg_coinc_id;
   std::map<UInt_t, UInt_t> coinc_gates;//in ps
@@ -311,11 +323,12 @@ public :
   int reset_counter;
  
   ULong64_t lastTime;
+  int n_bunches;
   
   TObjArray *toks;
 
-   DelilaSelector(TTree * /*tree*/ =0) { }
-   virtual ~DelilaSelector() { }
+   DelilaSelectorTrigger(TTree * /*tree*/ =0) { }
+   virtual ~DelilaSelectorTrigger() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
    virtual void    SlaveBegin(TTree *tree);
@@ -342,17 +355,20 @@ public :
    virtual int GetCoincTimeCorrection(int dom1, int dom2);
    virtual void cs();
    virtual void gamma_gamma();
-   virtual void gamma_gamma_LaBr_HPGe();
-   virtual void gamma_gamma_cs(TDelilaEvent &ev_);
-   virtual void time_alignment();
-   virtual void time_alignment_symmetric();
-   virtual void time_alignment_dom0(int zero_dom);
+   virtual void TreatDelilaEvent();
+   virtual void TreatFold(); 
+//    virtual void gamma_gamma_LaBr_HPGe();
+//    virtual void gamma_gamma_cs(TDelilaEvent &ev_);
+//    virtual void time_alignment();
+//    virtual void time_alignment_symmetric();
+//    virtual void time_alignment_dom0(int zero_dom);
 //    virtual int GetCoincID(TDelilaEvent &ev1, TDelilaEvent &ev2);
+//    virtual bool BunchTimeNotValidated(double_t time_diff_bunch);
    virtual int GetCoincID(int dom1, int dom2);
    virtual int GetCoinc_det_def(int det_def1, int det_def2);
    virtual void CheckPulserAllignement(int zero_dom);
 
-   ClassDef(DelilaSelector,0);
+   ClassDef(DelilaSelectorTrigger,0);
    
    
    struct CompareTimeStamp{
@@ -378,7 +394,7 @@ public :
 // }   
    
    
-//    DelilaSelector& operator<(const TDelilaEvent& ev1, const TDelilaEvent& ev2);
+//    DelilaSelectorTrigger& operator<(const TDelilaEvent& ev1, const TDelilaEvent& ev2);
 //     bool friend operator<(const TDelilaEvent& ev1, const TDelilaEvent& ev2);//{return ev1.TimeStamp < ev2.TimeStamp;}
      // this will return true when second person
     // has greater height. Suppose we have p1.height=5
@@ -391,8 +407,8 @@ public :
 
 #endif
 
-#ifdef DelilaSelector_cxx
-void DelilaSelector::Init(TTree *tree)
+#ifdef DelilaSelectorTrigger_cxx
+void DelilaSelectorTrigger::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the reader is initialized.
@@ -406,18 +422,20 @@ void DelilaSelector::Init(TTree *tree)
    
   foutFile->cd();
   outputTree = new TTree("SelectedDelila","SelectedDelila");
-  outputTree->Branch("fTEventTS",&DelilaEventCS.fTimeStamp,"TimeStamp/l");
+//   outputTree->Branch("fTEventTS",&DelilaEventCS.fTimeStamp,"TimeStamp/l");
   outputTree->Branch("fTEventFS",&DelilaEventCS.fTimeStampFS,"TimeStamp/D");
+  outputTree->Branch("fTimeBunch",&DelilaEventCS.TimeBunch,"fTimeBunch/D");
   outputTree->Branch("fEnergy",&DelilaEventCS.fEnergy,"Energy/F");
   outputTree->Branch("fEnergy_kev",&DelilaEventCS.EnergyCal,"Energy_kev/F");
 //   outputTree->Branch("fEnergyDC_kev",&DelilaEventCS.fEnergyDC_kev,"Energy_kev/F");
   outputTree->Branch("fDomain",&DelilaEventCS.domain,"Domain/b");
   outputTree->Branch("fDetType",&DelilaEventCS.det_def,"def/b");
-  outputTree->Branch("fCS",&DelilaEventCS.CS,"CS/b");
+//   outputTree->Branch("fCS",&DelilaEventCS.CS,"CS/b");
   outputTree->Branch("fTRG",&DelilaEventCS.trg,"Trigger/b");
+  outputTree->Branch("fFold",&DelilaEventCS.fold,"Fold/b");
 }
 
-Bool_t DelilaSelector::Notify()
+Bool_t DelilaSelectorTrigger::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -429,7 +447,7 @@ Bool_t DelilaSelector::Notify()
 }
 
 
-#endif // #ifdef DelilaSelector_cxx
+#endif // #ifdef DelilaSelectorTrigger_cxx
 // R G // 2 1
 // W B // 3 0
 // B0 G1 R2 W3
