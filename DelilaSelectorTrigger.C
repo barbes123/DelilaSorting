@@ -245,7 +245,7 @@ void DelilaSelectorTrigger::Read_CoincGates() {
 
 
   std::stringstream LUTFile;
-  LUTFile << pLUT_Path <<"/"<<"LUT_COINC.dat";
+  LUTFile << pLUT_Path <<"/"<<"LUT_CONF.dat";
   std::ifstream lookuptable(LUTFile.str().c_str());
 
   if (!lookuptable.good()) {
@@ -267,7 +267,7 @@ void DelilaSelectorTrigger::Read_CoincGates() {
       is >> coinc_name>> coinc_id >> gate;
       
       std::cout<<coinc_name<<" coin_id " << coinc_id <<" gate "<<gate <<" ps \n";
-      LUT_COINC[coinc_id] = gate; 
+      LUT_CONF[coinc_id] = gate; 
   }
   lookuptable.close();
   }
@@ -410,27 +410,6 @@ void DelilaSelectorTrigger::SlaveBegin(TTree * /*tree*/)
    
    hMult_gg_CS = new TH1F("hMult_gg_CS", "hMult_gg_CS",20,0,20);
    fOutput->Add(hMult_gg_CS);
-   
-/*        
-   hDelila = new TH1F("hDelila", "hDelila", 4096, -0.5, 16383.5);
-   hDelila->GetYaxis()->SetTitle("counts");
-   hDelila->GetXaxis()->SetTitle("keV");
-   fOutput->Add(hDelila);
-   
-   hDelilaDC = new TH1F("hDelilaDC", "hDelilaDC", 4096, -0.5, 16383.5);
-   hDelilaDC->GetYaxis()->SetTitle("counts");
-   hDelilaDC->GetXaxis()->SetTitle("keV");
-   fOutput->Add(hDelilaDC);
-   
-   hDelilaCS = new TH1F("hDelilaCS", "hDelilaCS", 4096, -0.5, 16383.5);
-   hDelilaCS->GetYaxis()->SetTitle("counts");
-   hDelilaCS->GetXaxis()->SetTitle("keV");
-   fOutput->Add(hDelilaCS);
-   
-   hDelilaCS_DC = new TH1F("hDelilaCS_DC", "hDelilaCS_DC", 4096, -0.5, 16383.5);
-   hDelilaCS_DC->GetYaxis()->SetTitle("counts");
-   hDelilaCS_DC->GetXaxis()->SetTitle("keV");
-   fOutput->Add(hDelilaCS_DC);*/
    
    hTimeDiffPulser = new TH1F("hTimeDiffPulser", "hTimeDiffPulser", 1000, -99.5, 899.5);
    fOutput->Add(hTimeDiffPulser);
@@ -895,7 +874,12 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
 //     //-------------------------------------------------------------------------------------------------------------
 //     
 //     mDomainTimeDiff_trigger->Fill(domain,time_diff_trigger);
-//     
+/*
+    DelilaEventCS = DelilaEvent; 
+    outputTree->Fill();*/
+
+     
+          
     if (DelilaEvent.det_def == 9){
         CheckPulserAllignement(90);
           return kTRUE;
@@ -925,7 +909,6 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
             LastBunchEvent.Time = 380000 + n_bunches * 400000;
 
             TreatFold();
-            
             n_bunches++;
             DelilaEvent.TimeBunch = DelilaEvent.Time - LastBunchEvent.Time;
         };
@@ -994,16 +977,34 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
 
 void DelilaSelectorTrigger::TreatFold()
 {
-    Int_t fold_size = foldQu.size();
+   if (!foldQu.empty()){
+     Int_t fold_size = foldQu.size();
 //     if (nfold!=fold_size)
-    if (fold_size > 9)   std::cout<<"Warning. Different fold number "<<nfold<<" "<< fold_size <<" \n";
-    
-     std::deque<TDelilaEvent> ::iterator it_fold_ = foldQu.begin();
-     for (; it_fold_ != foldQu.end();++it_fold_){
-         mFoldEnergy->Fill(fold_size,it_fold_->EnergyCal);
-//          it_fold_->fold = fold_size;
-//          if (blOutTree) {DelilaEventCS = *it_fold_; outputTree->Fill();};
-//           std::cout<<" Filling tree \n";
+//      if (fold_size > 9)   std::cout<<"Warning. Different fold number "<<nfold<<" "<< fold_size <<" \n";    
+     std::deque<TDelilaEvent>::iterator it_fold_ = foldQu.begin();
+     
+     while(!foldQu.empty()){
+          mFoldEnergy->Fill(fold_size,foldQu.front().EnergyCal);
+          foldQu.front().fold = fold_size;
+          if (blOutTree){
+              DelilaEventCS = foldQu.front();
+              outputTree->Fill();
+          };
+          foldQu.pop_front();
+     }
+     
+//      for (; it_fold_ != foldQu.end();++it_fold_){
+//          mFoldEnergy->Fill(fold_size,it_fold_->EnergyCal);
+//           it_fold_->fold = fold_size;
+//           if (blOutTree) {
+// //                TDelilaEvent ev_temp =  *it_fold_;
+// //                DelilaEventCS = ev_temp; 
+// //                DelilaEventCS = DelilaEvent;
+// //                DelilaEventCS.fold = it_fold_->fold;
+// //                outputTree->Fill();
+//             };
+//         };
+        
      };
     
     hBunchFold->Fill(nfold);
