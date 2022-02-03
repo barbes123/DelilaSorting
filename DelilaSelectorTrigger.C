@@ -983,27 +983,27 @@ void DelilaSelectorTrigger::TreatFold()
 //      if (fold_size > 9)   std::cout<<"Warning. Different fold number "<<nfold<<" "<< fold_size <<" \n";    
      std::deque<TDelilaEvent>::iterator it_fold_ = foldQu.begin();
      
-     while(!foldQu.empty()){
-          mFoldEnergy->Fill(fold_size,foldQu.front().EnergyCal);
-          foldQu.front().fold = fold_size;
-          if (blOutTree){
-              DelilaEventCS = foldQu.front();
-              outputTree->Fill();
-          };
-          foldQu.pop_front();
-     }
+//      while(!foldQu.empty()){
+//           mFoldEnergy->Fill(fold_size,foldQu.front().EnergyCal);
+//           foldQu.front().fold = fold_size;
+//           if (blOutTree){
+//               DelilaEventCS = foldQu.front();
+//               outputTree->Fill();
+//           };
+//           foldQu.pop_front();
+//      }
      
-//      for (; it_fold_ != foldQu.end();++it_fold_){
-//          mFoldEnergy->Fill(fold_size,it_fold_->EnergyCal);
-//           it_fold_->fold = fold_size;
-//           if (blOutTree) {
+      for (; it_fold_ != foldQu.end();++it_fold_){
+          mFoldEnergy->Fill(fold_size,it_fold_->EnergyCal);
+           it_fold_->fold = fold_size;
+           if (blOutTree) {
 // //                TDelilaEvent ev_temp =  *it_fold_;
 // //                DelilaEventCS = ev_temp; 
 // //                DelilaEventCS = DelilaEvent;
 // //                DelilaEventCS.fold = it_fold_->fold;
 // //                outputTree->Fill();
-//             };
-//         };
+             };
+         };
         
      };
     
