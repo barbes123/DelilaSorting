@@ -180,7 +180,7 @@ public :
   
   Long64_t bunch_length;
   Long64_t bunch_reset;
-  double   beta;
+//   double   beta;
   
  // std::map<UInt_t,TH1F*> hEnergy_raw;
   //std::map<UInt_t,TH1F*> hEnergy_cal;

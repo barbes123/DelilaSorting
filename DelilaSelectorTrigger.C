@@ -70,7 +70,7 @@ const int nbr_of_ch = 200;
 // ULong64_t lastTime_dom0 = 0;
 // ULong64_t lastTimeStamp = 0;
 
-// double beta = 0;
+double beta = 0;
 
 std::stringstream OutputFile;
 
@@ -280,7 +280,7 @@ void DelilaSelectorTrigger::Read_Confs() {
               break;
           }
           case 1111:{
-              beta = value;
+//               beta = value;
               std::cout<<"Beta is "<<beta<<" % \n";
               break;
           }
@@ -349,11 +349,12 @@ void DelilaSelectorTrigger::Begin(TTree * tree)
   TString option = GetOption();
   toks = option.Tokenize(",");
   TString RunID = ((TObjString*) toks->At(0))->GetString();
-  double beta1 = ((TObjString*) toks->At(2))->GetString().Atof();
+//   double beta = ((TObjString*) toks->At(2))->GetString().Atof();
+  beta = ((TObjString*) toks->At(2))->GetString().Atof();
   addBackMode = atoi(((TObjString*) toks->At(3))->GetString());
   std::cout << "addBackMode  " << addBackMode <<std::endl;
   
-//   std::cout<<"Beta is "<<beta<<" % \n";
+  std::cout<<"Beta is "<<beta<<" % \n";
 
 //   TString VolID = ((TObjString*) toks->At(1))->GetString();
 // 
