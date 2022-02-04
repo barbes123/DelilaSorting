@@ -70,7 +70,7 @@ const int nbr_of_ch = 200;
 // ULong64_t lastTime_dom0 = 0;
 // ULong64_t lastTimeStamp = 0;
 
-double beta = 0;
+// double beta = 0;
 
 std::stringstream OutputFile;
 
@@ -235,8 +235,8 @@ void DelilaSelectorTrigger::Read_TimeAlignment_Trigger() {
   //  std::exit(1);
 }
 
-void DelilaSelectorTrigger::Read_CoincGates() {
-  std::cout << "I am Reading Coic Gates LookUpTable ... ";
+void DelilaSelectorTrigger::Read_Confs() {
+  std::cout << "I am Reading Your Configuration parameters ... ";
  
   char* pLUT_Path;
   pLUT_Path = getenv ("DELILA_LUT");
@@ -263,11 +263,37 @@ void DelilaSelectorTrigger::Read_CoincGates() {
 
       std::istringstream is(oneline);
       TString coinc_name;
-      int coinc_id = 0; int gate = 0;
-      is >> coinc_name>> coinc_id >> gate;
+      int coinc_id = 0; int value = 0;
+      is >> coinc_name>> coinc_id >> value;
       
-      std::cout<<coinc_name<<" coin_id " << coinc_id <<" gate "<<gate <<" ps \n";
-      LUT_CONF[coinc_id] = gate; 
+      
+      switch (coinc_id){
+          case 1000: {
+              bunch_length = value;
+              std::cout<<"bunch_length "<<bunch_length<<" ps \n";
+              break;
+          }
+          case 1001:
+              {
+              bunch_reset = value;
+              std::cout<<"bunch_reset "<<bunch_reset<<" ps \n";
+              break;
+          }
+          case 1111:{
+              beta = value;
+              std::cout<<"Beta is "<<beta<<" % \n";
+              break;
+          }
+          default:
+          {
+              LUT_CONF[coinc_id] = value;
+              std::cout<<coinc_name<<" coin_id " << coinc_id <<" value "<<value <<" ps \n";
+              break;
+          };
+      };
+      
+      
+      
   }
   lookuptable.close();
   }
@@ -323,11 +349,11 @@ void DelilaSelectorTrigger::Begin(TTree * tree)
   TString option = GetOption();
   toks = option.Tokenize(",");
   TString RunID = ((TObjString*) toks->At(0))->GetString();
-  beta = ((TObjString*) toks->At(2))->GetString().Atof();
+  double beta1 = ((TObjString*) toks->At(2))->GetString().Atof();
   addBackMode = atoi(((TObjString*) toks->At(3))->GetString());
   std::cout << "addBackMode  " << addBackMode <<std::endl;
   
-  std::cout<<"Beta is "<<beta<<" % \n";
+//   std::cout<<"Beta is "<<beta<<" % \n";
 
 //   TString VolID = ((TObjString*) toks->At(1))->GetString();
 // 
@@ -365,13 +391,14 @@ void DelilaSelectorTrigger::Begin(TTree * tree)
     lastStamp = timeStamp;
   }
 
+  bunch_length = 40000;
+  bunch_reset = 38000;
   
   Read_ELIADE_LookUpTable();
-//   Print_ELIADE_LookUpTable();
   Read_TimeAlignment_LookUpTable();
   Read_TimeAlignment_Trigger();
+  Read_Confs();
 //   Print_TimeAlignment_LookUpTable();
-//   Read_CoincGates();
 
   
    
@@ -771,6 +798,7 @@ void DelilaSelectorTrigger::SlaveBegin(TTree * /*tree*/)
     DomainZeroEvent.Time = 0;
     LastBunchEvent.Time = 0;
     n_bunches = 0;
+    
 
     
     outputQu.clear();
@@ -885,6 +913,9 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
           return kTRUE;
     };
     
+//     DelilaEventCS = DelilaEvent;
+//             outputTree -> Fill();
+    
    if (DelilaEvent.det_def == 99){//new trigger
         hTriggerTrigger->Fill(DelilaEvent.Time - LastTriggerEvent.Time);
         LastTriggerEvent = DelilaEvent;
@@ -901,12 +932,12 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
         
         TreatDelilaEvent();
         
-        if (DelilaEvent.TimeBunch <= 380000){
+        if (DelilaEvent.TimeBunch <= bunch_reset){
 //             if (DelilaEvent.TimeBunch < 0){
 //              std::cout<<"DelilaEvent "<<DelilaEvent.Time <<" LastBunchEvent << "<<LastBunchEvent.Time<<"; LastTriggerEvent "<<LastTriggerEvent.Time<< " DelilaEvent.TimeBunch " <<DelilaEvent.TimeBunch<<" n_bunches "<<n_bunches <<std::endl;};
         }
         else{//new bunch            
-            LastBunchEvent.Time = 380000 + n_bunches * 400000;
+            LastBunchEvent.Time = bunch_reset + n_bunches * bunch_length;
 
             TreatFold();
             n_bunches++;
@@ -982,26 +1013,14 @@ void DelilaSelectorTrigger::TreatFold()
 //     if (nfold!=fold_size)
 //      if (fold_size > 9)   std::cout<<"Warning. Different fold number "<<nfold<<" "<< fold_size <<" \n";    
      std::deque<TDelilaEvent>::iterator it_fold_ = foldQu.begin();
-     
-//      while(!foldQu.empty()){
-//           mFoldEnergy->Fill(fold_size,foldQu.front().EnergyCal);
-//           foldQu.front().fold = fold_size;
-//           if (blOutTree){
-//               DelilaEventCS = foldQu.front();
-//               outputTree->Fill();
-//           };
-//           foldQu.pop_front();
-//      }
-     
-      for (; it_fold_ != foldQu.end();++it_fold_){
+
+     for (; it_fold_ != foldQu.end();++it_fold_){
           mFoldEnergy->Fill(fold_size,it_fold_->EnergyCal);
            it_fold_->fold = fold_size;
            if (blOutTree) {
-// //                TDelilaEvent ev_temp =  *it_fold_;
-// //                DelilaEventCS = ev_temp; 
-// //                DelilaEventCS = DelilaEvent;
-// //                DelilaEventCS.fold = it_fold_->fold;
-// //                outputTree->Fill();
+                DelilaEventCS = *it_fold_;
+//                 PrintDelilaEvent(*it_fold_);
+                outputTree->Fill();
              };
          };
         
@@ -1056,7 +1075,10 @@ void DelilaSelectorTrigger::Terminate()
 
   std::cout << std::endl << "Finished after " << round(duration / 60) << ":"
 	    << std::setw(2) << round(((int) duration) % 60) << std::setw(8)
-	    << ". Write spectra to file" << std::endl;
+	    << ". Write spectra to file \n" 
+        << " A box of valpolicella can be sent to \n"
+        << " Strada Reactorului 30, Magurele 077125 \n"
+        << " office 420 and/or 418 \n" << std::endl;
 
 
       TObject *obj; 
@@ -1065,7 +1087,7 @@ void DelilaSelectorTrigger::Terminate()
       foutFile->mkdir("long","long");
       foutFile->mkdir("Energy_time_diff","Energy_time_diff");
 
-
+      outputTree->Write();
       
        while ((obj = iter())) {
            TString name = obj->GetName();
@@ -1095,7 +1117,7 @@ void DelilaSelectorTrigger::Terminate()
             }
         };
         
-       outputTree->Write();
+//        outputTree->Write();
        foutFile->Close();
    
 
@@ -1249,5 +1271,15 @@ void DelilaSelectorTrigger::CheckPulserAllignement(int zero_dom)
    }else PulserEvent = DelilaEvent;
    return;
 }
+
+void DelilaSelectorTrigger::PrintDelilaEvent(TDelilaEvent &ev_)
+{
+    std::cout<<" === DelilaEvent === \n"<<
+    "  ev_.domain "<<ev_.domain<<" \n"<<
+    "  ev_.EnergyCal "<<ev_.EnergyCal<<" \n"<<
+    "  ev_.fold "<<ev_.fold<<" \n";
+//     "  ============= \n";
+}
+
 
 

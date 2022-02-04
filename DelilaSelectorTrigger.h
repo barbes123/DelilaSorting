@@ -98,10 +98,10 @@ public :
     Float_t	        phi;
     double_t        bgo_time_diff;
     ULong64_t       trg;
-    Int_t           bunch;
-    Int_t           fold;
+    UShort_t        bunch;
+    UShort_t        fold;
    //int make_board_ID(){return fMod*100}
-    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0),Time(0),bgo_time_diff(-1),trg(0),bunch(0){};
+    TDelilaEvent(): domain(-1),channel(-1),fTimeStamp(0),fEnergy(-1),CS(0),cs_domain(0),Time(0),bgo_time_diff(-1),trg(0),bunch(0),fold(0){};
  };
 
   class TDelilaDetector { 
@@ -177,6 +177,10 @@ public :
   TBranch *b_mod;  
   
   Long64_t nb_entries;
+  
+  Long64_t bunch_length;
+  Long64_t bunch_reset;
+  double   beta;
   
  // std::map<UInt_t,TH1F*> hEnergy_raw;
   //std::map<UInt_t,TH1F*> hEnergy_cal;
@@ -290,12 +294,6 @@ public :
   TH2F* mLaBr_LabBr_time_diff;
 
   
-  //Part For RoSPHERE
-//   TH2F* mLaBr_raw;  
-//   TH2F* mLaBr_kev;
-//   TH1F* hLaBr_kev;
-//   TH1F* hLaBrCS_kev;
-  
 //  TH2F* mDelilaSegEnergy;
 //   TH2F *mDomTimeDiff;
   TH2F *mPulser0TimeDiff;
@@ -347,7 +345,7 @@ public :
    virtual void  Read_ELIADE_LookUpTable();
    virtual void  Read_TimeAlignment_LookUpTable();
    virtual void  Read_TimeAlignment_Trigger();
-   virtual void  Read_CoincGates();
+   virtual void  Read_Confs();
    virtual void  Print_ELIADE_LookUpTable();
    virtual void  Print_TimeAlignment_LookUpTable();
    virtual float CalibDet(float,int);
@@ -357,16 +355,10 @@ public :
    virtual void gamma_gamma();
    virtual void TreatDelilaEvent();
    virtual void TreatFold(); 
-//    virtual void gamma_gamma_LaBr_HPGe();
-//    virtual void gamma_gamma_cs(TDelilaEvent &ev_);
-//    virtual void time_alignment();
-//    virtual void time_alignment_symmetric();
-//    virtual void time_alignment_dom0(int zero_dom);
-//    virtual int GetCoincID(TDelilaEvent &ev1, TDelilaEvent &ev2);
-//    virtual bool BunchTimeNotValidated(double_t time_diff_bunch);
    virtual int GetCoincID(int dom1, int dom2);
    virtual int GetCoinc_det_def(int det_def1, int det_def2);
    virtual void CheckPulserAllignement(int zero_dom);
+   virtual void PrintDelilaEvent(TDelilaEvent &ev_);
 
    ClassDef(DelilaSelectorTrigger,0);
    
@@ -430,7 +422,7 @@ void DelilaSelectorTrigger::Init(TTree *tree)
 //   outputTree->Branch("fEnergyDC_kev",&DelilaEventCS.fEnergyDC_kev,"Energy_kev/F");
   outputTree->Branch("fDomain",&DelilaEventCS.domain,"Domain/b");
   outputTree->Branch("fDetType",&DelilaEventCS.det_def,"def/b");
-//   outputTree->Branch("fCS",&DelilaEventCS.CS,"CS/b");
+  outputTree->Branch("fCS",&DelilaEventCS.CS,"CS/b");
   outputTree->Branch("fTRG",&DelilaEventCS.trg,"Trigger/b");
   outputTree->Branch("fFold",&DelilaEventCS.fold,"Fold/b");
 }
@@ -448,7 +440,3 @@ Bool_t DelilaSelectorTrigger::Notify()
 
 
 #endif // #ifdef DelilaSelectorTrigger_cxx
-// R G // 2 1
-// W B // 3 0
-// B0 G1 R2 W3
-
