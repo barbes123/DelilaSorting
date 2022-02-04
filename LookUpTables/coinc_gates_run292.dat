@@ -1,0 +1,9 @@
+#coinc_name coinc_id gate_ps
+hpge_hpge 11 10
+hpge_bgo  15 20
+labr_labr 33 30
+labr_bgo  45 40
+labr_hpge 13 50
+beta      1111 0.048
+bunch_length 1000 400000
+bunch_reset 1001 380000 
