@@ -1,4 +1,9 @@
-DelilaSorting
+# LUT and tools are removed to another repository 
+https://github.com/barbes123/onlineAnalysis.git
+one can push to the repository from gant computer at IFIN (analysis).
+
+
+# initial DelilaSorting
 
 1. Put DelilaSorting in $HOME/DelilaSelector
 2. mkdir ../exp1/root_files [for raw root  files]
