@@ -36,7 +36,7 @@ using namespace std;
 
 
 ////////////////////////////////Please, modify if needed////////////////////////////////////////////
-bool blGammaGamma = true;
+bool blGammaGamma = false;
 bool blGammaGammaCS = true;
 bool blCS = true;
 bool blIsTrigger = true; //trigger signal is present
