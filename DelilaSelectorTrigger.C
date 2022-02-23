@@ -952,7 +952,7 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
             
             
             if ((DelilaEvent.det_def == 3)||(DelilaEvent.det_def == 1)){
-                    mEnergy_time_diff[domain]->Fill(DelilaEvent.EnergyCal,DelilaEvent.TimeBunch);
+                   // mEnergy_time_diff[domain]->Fill(DelilaEvent.EnergyCal,DelilaEvent.TimeBunch); //uncomment if needed
             }; 
             
             
