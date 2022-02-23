@@ -36,8 +36,8 @@ using namespace std;
 
 
 ////////////////////////////////Please, modify if needed////////////////////////////////////////////
-bool blGammaGamma = false;
-bool blGammaGammaCS = true;
+bool blGammaGamma = true;
+bool blGammaGammaCS;// = true;
 bool blCS = true;
 bool blIsTrigger = true; //trigger signal is present
 // bool blTriggerMode = false;//to reset the queues after each trigger - to be implemented
@@ -1015,7 +1015,54 @@ void DelilaSelectorTrigger::TreatFold()
     nfold = 0;
 }
 
-void DelilaSelectorTrigger::gamma_gamma()
+
+void DelilaSelectorTrigger::gamma_gamma()//one gamma start the seocnd stop
+{
+   if (delilaQu.empty())return;
+   
+   std::map<int, int> nmult;
+   std::map<UInt_t, std::string>  ::iterator it_mult_ =  gg_coinc_id.begin();
+
+   for(;it_mult_!=gg_coinc_id.end();++it_mult_) nmult[it_mult_->first] = 0;   
+   
+   std::deque<TDelilaEvent>::iterator it1_= delilaQu.begin();
+   std::deque<TDelilaEvent>::iterator it2_= delilaQu.begin();
+
+     for (; it1_!= delilaQu.end();++it1_){
+         if ((it1_->det_def != 1 )||(it1_->det_def != 3 )) continue;
+//          if (it1_->TimeBunch > coinc_gates[coinc_id]) break;
+         
+         for (; it2_!= delilaQu.end();++it2_){
+             if (it1_ == it2_) continue;
+             if ((it2_->det_def != 1 )||(it2_->det_def != 3 )) continue;
+             int coinc_id = GetCoincID(it1_->det_def, it2_->det_def);
+             if (it1_->TimeBunch > coinc_gates[coinc_id]) break;
+             if (it2_->TimeBunch > coinc_gates[coinc_id]) break;
+             
+//              double_t time_diff_coinc = it1_->TimeBunch - it2_->TimeBunch;
+             nmult[coinc_id]++;
+                 
+                 if (coinc_id == 13) 
+                 {
+                      mGG[coinc_id]->Fill(it2_->EnergyCal, it1_->EnergyCal);
+                      mTimeDiff[coinc_id]->Fill(it2_->domain,it2_->TimeBunch );
+                      mTimeDiff[coinc_id]->Fill(it1_->domain,it1_->TimeBunch );
+                 } else
+                 {
+                      mGG[coinc_id]->Fill(it1_->EnergyCal, it2_->EnergyCal);
+                      mTimeDiff[coinc_id]->Fill(it2_->domain,it2_->TimeBunch );
+                      mTimeDiff[coinc_id]->Fill(it1_->domain,it1_->TimeBunch );
+                 };
+             };
+        };
+//         
+   it_mult_ =  gg_coinc_id.begin();
+   for(;it_mult_!=gg_coinc_id.end();++it_mult_) hMult[it_mult_->first]->Fill(nmult[it_mult_->first]);   
+        
+};
+
+/*
+void DelilaSelectorEliade::gamma_gamma()//one gamma start the seocnd stop
 {
    if (delilaQu.empty())return;
    
@@ -1053,7 +1100,7 @@ void DelilaSelectorTrigger::gamma_gamma()
    it_mult_ =  gg_coinc_id.begin();
    for(;it_mult_!=gg_coinc_id.end();++it_mult_) hMult[it_mult_->first]->Fill(nmult[it_mult_->first]);   
         
-};
+};*/
 
 // void DelilaSelectorTrigger::TreatFold()//older version
 // {
