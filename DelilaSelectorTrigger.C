@@ -1005,7 +1005,7 @@ void DelilaSelectorTrigger::TreatFold()
      for (; it_delila_!= delilaQu.end();++it_delila_){
          if (it_delila_->det_def == 3) {
              it_delila_->fold = nfold;
-             mFoldEnergy->Fill(nfold,it_delila_->EnergyCal);
+//              mFoldEnergy->Fill(nfold,it_delila_->EnergyCal);//uncomment if want to fill
              if (blOutTree) {
                 DelilaEventCS = *it_delila_;                
                 outputTree->Fill();
@@ -1044,14 +1044,32 @@ void DelilaSelectorTrigger::gamma_gamma()//one gamma start the seocnd stop
                  
                  if (coinc_id == 13) 
                  {
-                      mGG[coinc_id]->Fill(it2_->EnergyCal, it1_->EnergyCal);
+//                       mGG_long[coinc_id]->Fill(it2_->EnergyCal, it1_->EnergyCal);
+                      mGG_DC_long[coinc_id]->Fill(it2_->EnergyDC, it1_->EnergyDC);
+                      
                       mTimeDiff[coinc_id]->Fill(it2_->domain,it2_->TimeBunch );
                       mTimeDiff[coinc_id]->Fill(it1_->domain,it1_->TimeBunch );
+                      
+                      if ((it1_->CS == 0)&&(it2_->CS == 0))
+                      {
+                          mGG_CS_long[coinc_id]->Fill(it2_->EnergyCal, it1_->EnergyCal);
+                          mGG_CS_DC_long[coinc_id]->Fill(it2_->EnergyDC, it1_->EnergyDC);
+                          
+                    }
+                      
                  } else
                  {
-                      mGG[coinc_id]->Fill(it1_->EnergyCal, it2_->EnergyCal);
+//                       mGG_long[coinc_id]->Fill(it1_->EnergyCal, it2_->EnergyCal);
+                      mGG_DC_long[coinc_id]->Fill(it1_->EnergyDC, it2_->EnergyDC);
+                      
                       mTimeDiff[coinc_id]->Fill(it2_->domain,it2_->TimeBunch );
                       mTimeDiff[coinc_id]->Fill(it1_->domain,it1_->TimeBunch );
+                      
+                      if ((it1_->CS == 0)&&(it2_->CS == 0))
+                      {
+                          mGG_CS_long[coinc_id]->Fill(it1_->EnergyCal, it2_->EnergyCal);
+                          mGG_CS_DC_long[coinc_id]->Fill(it1_->EnergyDC, it2_->EnergyDC);
+                    };
                  };
              };
         };
