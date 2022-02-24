@@ -625,14 +625,14 @@ void DelilaSelectorTrigger::SlaveBegin(TTree * /*tree*/)
 };
    
 
-  mTimeDiff[1] = new TH2F(Form("mTimeDiff_%s",detector_name[1].c_str()), Form("mTimeDiff_%s",detector_name[1].c_str()), 100, 0, 100, 4e4, -2e6, 2e6);
-  fOutput->Add(mTimeDiff[1]);
-  mTimeDiff[3] = new TH2F(Form("mTimeDiff_%s",detector_name[3].c_str()), Form("mTimeDiff_%s",detector_name[3].c_str()), 100, 0, 100, 4e4, -2e6, 2e6);
-  fOutput->Add(mTimeDiff[3]);
-  mTimeDiff[5] = new TH2F(Form("mTimeDiff_%s",detector_name[5].c_str()), Form("mTimeDiff_%s",detector_name[5].c_str()), 100, 0, 100, 4e4, -2e6, 2e6);
-  fOutput->Add(mTimeDiff[5]);
-  mTimeDiff[9] = new TH2F(Form("mTimeDiff_%s",detector_name[9].c_str()), Form("mTimeDiff_%s",detector_name[9].c_str()), 100, 0, 100, 4e4, -2e6, 2e6);
-  fOutput->Add(mTimeDiff[9]);
+  mTimeDiff[13] = new TH2F(Form("mTimeDiff_%s",gg_coinc_id[13].c_str()), Form("mTimeDiff_%s",gg_coinc_id[13].c_str()), 100, 0, 100, 4e4, -2e6, 2e6);
+  fOutput->Add(mTimeDiff[13]);
+  mTimeDiff[33] = new TH2F(Form("mTimeDiff_%s",gg_coinc_id[33].c_str()), Form("mTimeDiff_%s",gg_coinc_id[33].c_str()), 100, 0, 100, 4e4, -2e6, 2e6);
+  fOutput->Add(mTimeDiff[33]);
+  mTimeDiff[11] = new TH2F(Form("mTimeDiff_%s",gg_coinc_id[11].c_str()), Form("mTimeDiff_%s",gg_coinc_id[11].c_str()), 100, 0, 100, 4e4, -2e6, 2e6);
+  fOutput->Add(mTimeDiff[11]);
+//   mTimeDiff[9] = new TH2F(Form("mTimeDiff_%s",detector_name[9].c_str()), Form("mTimeDiff_%s",detector_name[9].c_str()), 100, 0, 100, 4e4, -2e6, 2e6);
+//   fOutput->Add(mTimeDiff[9]);
 
     
    
@@ -788,7 +788,7 @@ void DelilaSelectorTrigger::SlaveBegin(TTree * /*tree*/)
    
    
        
-   std::map<unsigned int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
+/*   std::map<unsigned int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
     for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
         if ((LUT_DELILA[it_lut_->first].detType == 1)||(LUT_DELILA[it_lut_->first].detType == 3)){
             int dom = LUT_DELILA[it_lut_->first].dom;
@@ -798,7 +798,7 @@ void DelilaSelectorTrigger::SlaveBegin(TTree * /*tree*/)
             mEnergy_time_diff[dom]->SetTitle(" Time Diff Event.Time - Bunch.Time ");
             fOutput->Add(mEnergy_time_diff[dom]); 
         };
-    };
+    }*/;
 
   TString option = GetOption();
   toks = option.Tokenize(",");
@@ -1029,41 +1029,49 @@ void DelilaSelectorTrigger::gamma_gamma()//one gamma start the seocnd stop
    std::deque<TDelilaEvent>::iterator it2_= delilaQu.begin();
 
      for (; it1_!= delilaQu.end();++it1_){
-         if ((it1_->det_def != 1 )||(it1_->det_def != 3 )) continue;
-//          if (it1_->TimeBunch > coinc_gates[coinc_id]) break;
+         
+         if ((it1_->det_def != 1 )&&(it1_->det_def != 3 )) continue;
+         if (it1_->TimeBunch < 0 ) continue;
          
          for (; it2_!= delilaQu.end();++it2_){
+             
              if (it1_ == it2_) continue;
-             if ((it2_->det_def != 1 )||(it2_->det_def != 3 )) continue;
+             if (it2_->TimeBunch < 0 ) continue;
+             if ((it2_->det_def != 1 )&&(it2_->det_def != 3 )) continue;
+             
              int coinc_id = GetCoincID(it1_->det_def, it2_->det_def);
-             if (it1_->TimeBunch > coinc_gates[coinc_id]) break;
-             if (it2_->TimeBunch > coinc_gates[coinc_id]) break;
+             
+             mTimeDiff[coinc_id]->Fill(it1_->domain,it1_->TimeBunch );
+             mTimeDiff[coinc_id]->Fill(it2_->domain,it2_->TimeBunch );
+            
+             if (it1_->TimeBunch > coinc_gates[coinc_id]) continue;
+             if (it2_->TimeBunch > coinc_gates[coinc_id]) continue;
              
 //              double_t time_diff_coinc = it1_->TimeBunch - it2_->TimeBunch;
+//              std::cout<<coinc_id<<"\n";
              nmult[coinc_id]++;
                  
                  if (coinc_id == 13) 
                  {
-//                       mGG_long[coinc_id]->Fill(it2_->EnergyCal, it1_->EnergyCal);
+                      mGG_long[coinc_id]->Fill(it2_->EnergyCal, it1_->EnergyCal);
                       mGG_DC_long[coinc_id]->Fill(it2_->EnergyDC, it1_->EnergyDC);
                       
-                      mTimeDiff[coinc_id]->Fill(it2_->domain,it2_->TimeBunch );
-                      mTimeDiff[coinc_id]->Fill(it1_->domain,it1_->TimeBunch );
+//                       mTimeDiff[it2_->domain]->Fill(it2_->domain,it2_->TimeBunch );
+//                       mTimeDiff[coinc_id]->Fill(it1_->domain,it1_->TimeBunch );
                       
                       if ((it1_->CS == 0)&&(it2_->CS == 0))
                       {
                           mGG_CS_long[coinc_id]->Fill(it2_->EnergyCal, it1_->EnergyCal);
                           mGG_CS_DC_long[coinc_id]->Fill(it2_->EnergyDC, it1_->EnergyDC);
-                          
-                    }
+                        }
                       
                  } else
                  {
-//                       mGG_long[coinc_id]->Fill(it1_->EnergyCal, it2_->EnergyCal);
+                      mGG_long[coinc_id]->Fill(it1_->EnergyCal, it2_->EnergyCal);
                       mGG_DC_long[coinc_id]->Fill(it1_->EnergyDC, it2_->EnergyDC);
                       
-                      mTimeDiff[coinc_id]->Fill(it2_->domain,it2_->TimeBunch );
-                      mTimeDiff[coinc_id]->Fill(it1_->domain,it1_->TimeBunch );
+//                       mTimeDiff[coinc_id]->Fill(it2_->domain,it2_->TimeBunch );
+//                       mTimeDiff[it1_->domain]->Fill(it1_->domain,it1_->TimeBunch );
                       
                       if ((it1_->CS == 0)&&(it2_->CS == 0))
                       {
@@ -1361,8 +1369,8 @@ void DelilaSelectorTrigger::cs()
 
 int DelilaSelectorTrigger::GetCoincID(int dom1, int dom2){
     int id=0;
-    if (dom1<=dom2) {id = dom1*100+dom2;}
-        else {id = dom2*100+dom1; };
+    if (dom1<=dom2) {id = dom1*10+dom2;}//was dom*100
+        else {id = dom2*10+dom1; };
     return id;
 }
 
