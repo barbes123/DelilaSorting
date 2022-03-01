@@ -949,15 +949,16 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
         hNBunch->Fill(nn);
         
         TreatDelilaEvent();
-           if (DelilaEvent.TimeBunch >= bunch_length){
-               if (blCS) cs();
-               if (blGammaGamma) gamma_gamma();
-               TreatFold();
-               hdelilaQu_size->Fill(delilaQu.size());
-               delilaQu.clear();
-               
-                if (DelilaEvent.TimeBunch < 0) std::cout<<"Warning  DelilaEvent.TimeBunch < 0 "<< DelilaEvent.TimeBunch <<" \n";
-                nn_current_bunch = nn;
+        if (DelilaEvent.TimeBunch >= bunch_length){
+//            if (DelilaEvent.TimeBunch >= bunch_reset){
+            if (blCS) cs();
+            if (blGammaGamma) gamma_gamma();
+            TreatFold();
+            hdelilaQu_size->Fill(delilaQu.size());
+            delilaQu.clear();
+            
+             if (DelilaEvent.TimeBunch < 0) std::cout<<"Warning  DelilaEvent.TimeBunch < 0 "<< DelilaEvent.TimeBunch <<" \n";
+             nn_current_bunch = nn;
             };
             
             
@@ -966,14 +967,14 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
 //             }; 
             
             
-             if (DelilaEvent.TimeBunch > bunch_reset) DelilaEvent.TimeBunch-=bunch_length;
-             
-             hTimeInBunch->Fill(DelilaEvent.TimeBunch);         
-             DelilaEvent.bunch = nn_current_bunch;
-             DelilaEvent.trg = trigger_cnt;
-             delilaQu.push_back(DelilaEvent);
+// //              if (DelilaEvent.TimeBunch > bunch_reset) DelilaEvent.TimeBunch-=bunch_length;
+//              
+//              hTimeInBunch->Fill(DelilaEvent.TimeBunch);         
+//              DelilaEvent.bunch = nn_current_bunch;
+//              DelilaEvent.trg = trigger_cnt;
+//              delilaQu.push_back(DelilaEvent);
             
-/*            
+            
              if (DelilaEvent.TimeBunch < bunch_reset)
              {
                 hTimeInBunch->Fill(DelilaEvent.TimeBunch);         
@@ -983,15 +984,15 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
 //                 if (DelilaEvent.det_def == 3) {
 //                     nfold++;
 //                     foldQu.push_back(DelilaEvent);
-//                 };
-             }
-             else{
-                DelilaEvent.TimeBunch = DelilaEvent.TimeBunch - bunch_length;
-                hTimeInBunch->Fill(DelilaEvent.TimeBunch);         
-                DelilaEvent.bunch = nn_current_bunch;
-                DelilaEvent.trg = trigger_cnt;
-                delilaQu.push_back(DelilaEvent);
-             };*/
+              };
+//              };
+//              else{
+//                 DelilaEvent.TimeBunch = DelilaEvent.TimeBunch - bunch_length;
+//                 hTimeInBunch->Fill(DelilaEvent.TimeBunch);         
+//                 DelilaEvent.bunch = nn_current_bunch;
+//                 DelilaEvent.trg = trigger_cnt;
+//                 delilaQu.push_back(DelilaEvent);
+//              };
              
              mDomainTimeDiff_trigger->Fill(DelilaEvent.domain,DelilaEvent.TimeTrg);
              mDomainTimeDiff_bunch->Fill(DelilaEvent.domain,DelilaEvent.TimeBunch);
