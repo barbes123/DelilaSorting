@@ -197,6 +197,7 @@ public :
   
   TH2F* mEnergyTimeDiff_trigger;
   TH2F* mDomainTimeDiff_trigger;
+  TH2F* mDomainTimeDiff_trigger_TA;
   TH2F* mDomainTimeDiff_bunch;
   
   std::map<int, TH2F*> mGG;
@@ -214,7 +215,8 @@ public :
   std::map<int, TH1F*> hMult;
 
   std::map<UInt_t, std::string> gg_coinc_id;
-  std::map<UInt_t, UInt_t> coinc_gates;//in ps
+  //std::map<UInt_t, UInt_t> coinc_gates;//in ps
+  std::map<UInt_t, Float_t> coinc_gates;//in ps
 
   
   std::map<int, std::string> domain_list;
@@ -224,13 +226,13 @@ public :
   
   TH2F* mThetaPhi; 
   TH2F* mGammaGamma;
-  TH2F* mTimeDiff_gg;
+//   TH2F* mTimeDiff_gg;
   TH1F* hMult_gg;
   TH2F* mGammaGammaCS;
-  TH2F* mTimeDiff_gg_CS;
+//   TH2F* mTimeDiff_gg_CS;
   TH1F* hMult_gg_CS;
   
-  TH2F* mLaBr_LabBr_time_diff;
+//   TH2F* mLaBr_LabBr_time_diff;
 
   
   TH2F *mPulser0TimeDiff;
@@ -314,6 +316,7 @@ void DelilaSelectorTrigger::Init(TTree *tree)
 //   outputTree->Branch("fTEventTS",&DelilaEventCS.fTimeStamp,"TimeStamp/l");
 //   outputTree->Branch("fTEventFS",&DelilaEventCS.fTimeStampFS,"TimeStamp/D");
   outputTree->Branch("fTimeBunch",&DelilaEventCS.TimeBunch,"TimeBunch/D");
+  outputTree->Branch("fTimeTrg",&DelilaEventCS.TimeTrg,"TimeTrg/D");
   outputTree->Branch("fTime",&DelilaEventCS.Time,"Time/D");
   outputTree->Branch("fEnergy",&DelilaEventCS.fEnergy,"Energy/F");
   outputTree->Branch("fEnergy_kev",&DelilaEventCS.EnergyCal,"Energy_kev/F");
