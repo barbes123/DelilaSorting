@@ -115,11 +115,11 @@ public :
     Float_t	 phi;  
     UShort_t detType;//0 - nothing; 1 - core; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 9 - pulser
     Int_t	 TimeOffset; 
-    Int_t 	 upperThreshold; 
+    Int_t 	 threshold; 
     Int_t	 pol_order;
     Int_t    cs_dom;
     std::vector<float> calibE;
-    TDelilaDetector(): dom(-1),phi(-1),theta(-1),TimeOffset(0),calibE(0),upperThreshold(-1),ch(-1),pol_order(-1){};
+    TDelilaDetector(): dom(-1),phi(-1),theta(-1),TimeOffset(0),calibE(0),threshold(-1),ch(-1),pol_order(-1){};
  };
  
   std::deque<TDelilaEvent> delilaQu;

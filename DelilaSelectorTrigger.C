@@ -108,11 +108,11 @@ void DelilaSelectorTrigger::Read_ELIADE_LookUpTable() {
       if (oneline.empty())   continue; // ignore empty lines
       TDelilaDetector curDet;
       Float_t theta(-1.), phi(-1.);
-      int upperThreshold = 1e6;
+      int threshold = 1;
       std::istringstream is(oneline);
       if (debug) std::cout << is.str().c_str() << std::endl;
 //       is >> curDet.ch >> curDet.dom >> curDet.theta >> curDet.phi >> curDet.TimeOffset >> curDet.upperThreshold;
-      is >> curDet.ch >> curDet.dom >> curDet.detType >> curDet.serial >> curDet.TimeOffset >> curDet.theta >> curDet.phi >> curDet.upperThreshold >> curDet.cs_dom;
+      is >> curDet.ch >> curDet.dom >> curDet.detType >> curDet.serial >> curDet.TimeOffset >> curDet.theta >> curDet.phi >> curDet.threshold >> curDet.cs_dom;
     //  std::cout<<" curDfalseet.ch  "<<curDet.ch <<" curDet.TimeOffset " <<curDet.TimeOffset<<std::endl;
       
       if (curDet.ch >= 0) {
@@ -311,7 +311,8 @@ void DelilaSelectorTrigger::Print_ELIADE_LookUpTable()
     std::map<unsigned int, TDelilaDetector > ::iterator it__ = LUT_DELILA.begin();
     for (; it__ != LUT_DELILA.end(); ++it__) {
      // is >> curDet.ch >> curDet.dom >> theta >> phi >> curDet.TimeOffset >> curDet.upperThreshold;
-	std::cout<<" Ch "<<LUT_DELILA[it__->first].ch<<" Dom "<< LUT_DELILA[it__->first].dom<<" "<< LUT_DELILA[it__->first].theta<<" "<< LUT_DELILA[it__->first].phi <<" offset "<< LUT_DELILA[it__->first].TimeOffset<<" Thr "<< LUT_DELILA[it__->first].upperThreshold<<" serial "<<LUT_DELILA[it__->first].serial<<" theta" <<LUT_DELILA[it__->first].theta<<" phi "<<LUT_DELILA[it__->first].phi <<" cs_dom: "<<LUT_DELILA[it__->first].cs_dom<<" pol_order: " <<LUT_DELILA[it__->first].pol_order <<std::endl;
+// 	std::cout<<" Ch "<<LUT_DELILA[it__->first].ch<<" Dom "<< LUT_DELILA[it__->first].dom<<" "<< LUT_DELILA[it__->first].theta<<" "<< LUT_DELILA[it__->first].phi <<" offset "<< LUT_DELILA[it__->first].TimeOffset<<" Thr "<< LUT_DELILA[it__->first].threshold<<" serial "<<LUT_DELILA[it__->first].serial<<" theta" <<LUT_DELILA[it__->first].theta<<" phi "<<LUT_DELILA[it__->first].phi <<" cs_dom: "<<LUT_DELILA[it__->first].cs_dom<<" pol_order: " <<LUT_DELILA[it__->first].pol_order <<std::endl;
+        std::cout<<" Ch: "<<LUT_DELILA[it__->first].ch<<" Dom: "<< LUT_DELILA[it__->first].dom<<" type: "<< LUT_DELILA[it__->first].detType<<" serial: "<< LUT_DELILA[it__->first].serial <<" offset: "<< LUT_DELILA[it__->first].TimeOffset<<" Theta: "<< LUT_DELILA[it__->first].theta<<" phi: "<<LUT_DELILA[it__->first].phi<<" thr:" <<LUT_DELILA[it__->first].threshold<<" cs_dom "<<LUT_DELILA[it__->first].cs_dom<<" pol_order: "<<LUT_DELILA[it__->first].pol_order<<std::endl;  
     }
 };
 
@@ -808,6 +809,7 @@ void DelilaSelectorTrigger::SlaveBegin(TTree * /*tree*/)
    std::cout<<"bunch_length "<<bunch_length<<" ps \n";
    std::cout<<"bunch_reset "<<bunch_reset <<" ps \n";
    std::cout<<"Beta is "<<beta<<" % \n"; 
+   Print_ELIADE_LookUpTable();
 
     
 //     outputQu.clear();
@@ -849,7 +851,7 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
        LastTriggerEvent = DelilaEvent;
        LastBunchEvent = DelilaEvent;// + n_bunches * 400000;
        trigger_cnt++;
-       std::cout<<"I found the first trigger signal! Cool! "<<  LastTriggerEvent.Time <<" "<<LastBunchEvent.Time<< "\n";
+       std::cout<<"I found the first trigger signal! Cool! \n";//<<  LastTriggerEvent.Time <<" "<<LastBunchEvent.Time<< "\n";
     };     
     if (!blFirstTrigger) return kTRUE;
 
@@ -865,10 +867,14 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
     mDelila_raw->Fill(domain,DelilaEvent.fEnergy);
     hDomainHit->Fill(domain);
     hDetTypeHit->Fill(DelilaEvent.det_def);
+    
+    DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
+    
+    if (DelilaEvent.EnergyCal < LUT_DELILA[daq_ch].threshold) return kTRUE;
+    
     DelilaEvent.cs_domain = LUT_DELILA[daq_ch].cs_dom;
     DelilaEvent.theta= LUT_DELILA[daq_ch].theta;
     DelilaEvent.phi= LUT_DELILA[daq_ch].phi;
-
 
      //Check if the tree is time sorted
      DelilaEvent.Time = fTimeStampFS;
@@ -1138,7 +1144,7 @@ void DelilaSelectorTrigger::TreatDelilaEvent()
     UShort_t daq_ch = DelilaEvent.channel;
     UShort_t domain = DelilaEvent.domain;
     
-    DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
+//     DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
     double costheta = TMath::Cos(LUT_DELILA[daq_ch].theta);
     DelilaEvent.EnergyDC = DelilaEvent.EnergyCal*(1./sqrt(1 - beta*beta) * (1 - beta*costheta));
     
