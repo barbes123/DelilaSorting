@@ -404,7 +404,7 @@ void DelilaSelectorTrigger::Begin(TTree * tree)
   Read_TimeAlignment_LookUpTable();
   Read_TimeAlignment_Trigger();
   Read_Confs();
-//   Print_TimeAlignment_LookUpTable();
+  Print_ELIADE_LookUpTable();
 
   
    
@@ -867,7 +867,7 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
     
     DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
    
-    if (DelilaEvent.EnergyCal < LUT_DELILA[daq_ch].threshold) return kTRUE;
+    if ((DelilaEvent.EnergyCal < LUT_DELILA[daq_ch].threshold)&&(DelilaEvent.det_def < 9)) return kTRUE;
     
     DelilaEvent.cs_domain = LUT_DELILA[daq_ch].cs_dom;
     DelilaEvent.theta= LUT_DELILA[daq_ch].theta;
