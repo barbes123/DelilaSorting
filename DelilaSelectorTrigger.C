@@ -866,8 +866,8 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
     hDetTypeHit->Fill(DelilaEvent.det_def);
     
     DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
-    
-//     if (DelilaEvent.EnergyCal < LUT_DELILA[daq_ch].threshold) return kTRUE;
+   
+    if (DelilaEvent.EnergyCal < LUT_DELILA[daq_ch].threshold) return kTRUE;
     
     DelilaEvent.cs_domain = LUT_DELILA[daq_ch].cs_dom;
     DelilaEvent.theta= LUT_DELILA[daq_ch].theta;
@@ -934,8 +934,7 @@ Bool_t DelilaSelectorTrigger::Process(Long64_t entry)
                    // mEnergy_time_diff[domain]->Fill(DelilaEvent.EnergyCal,DelilaEvent.TimeBunch); //uncomment if needed
 //             }; 
             
-              if (DelilaEvent.TimeBunch < bunch_reset)
-              {
+        if (DelilaEvent.TimeBunch < bunch_reset){
                 hTimeInBunch->Fill(DelilaEvent.TimeBunch);         
                 DelilaEvent.bunch = nn_current_bunch;
                 DelilaEvent.trg = trigger_cnt;
