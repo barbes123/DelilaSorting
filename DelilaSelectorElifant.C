@@ -501,7 +501,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    
    
    mThetaPhi = new TH2F("mThetaPhi", "mThetaPhi", 90,60,150,360,0,360);
-   mThetaPhi->GetXaxis()->SetTitle("theta, degrees");
+   mThetaPhi->GetXaxis()->SetTitle("theta, degrees"mTimeCalib);
    mThetaPhi->GetYaxis()->SetTitle("phi, degrees");
    fOutput->Add(mThetaPhi);
       
@@ -1114,9 +1114,9 @@ void DelilaSelectorElifant::TreatDelilaEvent()
     
     hDelila[DelilaEvent.det_def]->Fill(DelilaEvent.EnergyCal);
     mDelila->Fill(domain,DelilaEvent.EnergyCal);
-    mDelila_long->Fill(domain,DelilaEvent.EnergyCal);
+//     mDelila_long->Fill(domain,DelilaEvent.EnergyCal);
     mDelilaDC->Fill(domain,DelilaEvent.EnergyDC);
-    mDelilaDC_long->Fill(domain,DelilaEvent.EnergyDC);
+//     mDelilaDC_long->Fill(domain,DelilaEvent.EnergyDC);
     
 //     mThetaPhi->Fill(DelilaEvent.theta, DelilaEvent.phi);
 
@@ -1365,7 +1365,8 @@ void DelilaSelectorElifant::TimeAlignement()
            int coincID = GetCoinc_det_def(it1_->det_def,it2_->det_def);
 //            double time_diff_temp = it1_->Time - it2_->Time;
            //double time_diff_temp = delilaQu.front().Time - it2_->Time;
-           double time_diff_temp = it2_->Time - LastTriggerEvent.Time  - GetCoincTimeCorrection(it1_->domain, it2_->domain);
+//            double time_diff_temp = it2_->Time - LastTriggerEvent.Time  - GetCoincTimeCorrection(it1_->domain, it2_->domain);
+           double time_diff_temp = it1_->Time - it2_->Time - GetCoincTimeCorrection(it1_->domain, it2_->domain);
            
            switch (coincID) 
            {
