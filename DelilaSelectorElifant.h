@@ -109,7 +109,7 @@ public :
   class TDelilaDetector { 
   public:
     Int_t	 dom;
-    Int_t	 ch;//ch daq
+    int	 ch;//ch daq
     Int_t	 serial;
     Float_t  theta;
     Float_t	 phi;  
@@ -124,7 +124,8 @@ public :
  
   std::deque<TDelilaEvent> delilaQu;
 
-  std::map<unsigned int, TDelilaDetector > LUT_DELILA;  
+//   std::map<unsigned int, TDelilaDetector > LUT_DELILA;
+  std::map<int, TDelilaDetector > LUT_DELILA;    
   std::map<int, int > LUT_TA;
   std::map<int, double_t > LUT_TA_TRG;
 
@@ -250,7 +251,7 @@ public :
   double duration;
  
   ULong64_t nevents;
-  ULong64_t nevents_reset;
+//   ULong64_t nevents_reset;
   int reset_counter;
  
   ULong64_t lastTime;

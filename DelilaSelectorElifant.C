@@ -36,11 +36,11 @@ using namespace std;
 
 
 ////////////////////////////////Please, modify if needed////////////////////////////////////////////
-bool blGammaGamma = true;
+bool blGammaGamma = false;
 bool blCS = false;
 bool blOutTree = true;
 bool blFold = false;
-bool blTimeAlignement = true;
+bool blTimeAlignement = false;
 ////////////////////////////////Please, DO NOT modify ////////////////////////////////////////////
 int addBackMode = 0; //0 - no addback; 1- addback;//not in use for ELIFANT
 bool blIsTrigger = false; //the trigger is open
@@ -148,7 +148,6 @@ void DelilaSelectorElifant::Read_TimeAlignment_LookUpTable() {
 
   std::stringstream LUTFile;
   LUTFile << pLUT_Path <<"/"<<"LUT_TA.dat";
-  //LUTFile << LUT_Directory << "LUT_DELILA.dat";
 //   const int nbr_of_ch = 200;
   std::ifstream lookuptable(LUTFile.str().c_str());
 
@@ -191,7 +190,6 @@ void DelilaSelectorElifant::Read_TimeAlignment_Trigger() {
 
   std::stringstream LUTFile;
   LUTFile << pLUT_Path <<"/"<<"LUT_TRIGGER.dat";
-  //LUTFile << LUT_Directory << "LUT_DELILA.dat";
   const int nbr_of_ch = 200;
   std::ifstream lookuptable(LUTFile.str().c_str());
 
@@ -295,7 +293,7 @@ void DelilaSelectorElifant::Read_Confs() {
 void DelilaSelectorElifant::Print_ELIADE_LookUpTable()
 {
     std::cout<<"Print_ELIADE_LookUpTable \n";		
-    std::map<unsigned int, TDelilaDetector > ::iterator it__ = LUT_DELILA.begin();
+    std::map<int, TDelilaDetector > ::iterator it__ = LUT_DELILA.begin();
     for (; it__ != LUT_DELILA.end(); ++it__) {
      // is >> curDet.ch >> curDet.dom >> theta >> phi >> curDet.TimeOffset >> curDet.threshold;
 	std::cout<<" Ch "<<LUT_DELILA[it__->first].ch<<" Dom "<< LUT_DELILA[it__->first].dom<<" "<< LUT_DELILA[it__->first].theta<<" "<< LUT_DELILA[it__->first].phi <<" offset "<< LUT_DELILA[it__->first].TimeOffset<<" Thr "<< LUT_DELILA[it__->first].threshold<<" serial "<<LUT_DELILA[it__->first].serial<<" theta" <<LUT_DELILA[it__->first].theta<<" phi "<<LUT_DELILA[it__->first].phi <<" cs_dom: "<<LUT_DELILA[it__->first].cs_dom<<" pol_order: " <<LUT_DELILA[it__->first].pol_order <<std::endl;
@@ -397,12 +395,13 @@ void DelilaSelectorElifant::Begin(TTree * tree)
   lastDelilaTime = 0;
   
   Read_ELIADE_LookUpTable();
-  Read_TimeAlignment_LookUpTable();
+//   Print_ELIADE_LookUpTable();
+//   Read_TimeAlignment_LookUpTable();
 //   Read_TimeAlignment_Trigger();
   Read_Confs();
   
 //   Print_TimeAlignment_LookUpTable();
-  Print_TimeAlignment_Trigger_LookUpTable();
+//   Print_TimeAlignment_Trigger_LookUpTable();
 
   
    
@@ -418,7 +417,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    // The tree argument is deprecated (on PROOF 0 is passed).
 
  nevents = 0;
- nevents_reset=0;
+//  nevents_reset=0;
  reset_counter = 0;
 
    hTimeSort = new TH1F("hTimeSort", "hTimeSort", 1e3, -1e5,1e5);
@@ -813,7 +812,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    
    
        
-   std::map<unsigned int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
+   std::map<int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
     for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
         if ((LUT_DELILA[it_lut_->first].detType == 1)||(LUT_DELILA[it_lut_->first].detType == 3)){
             int dom = LUT_DELILA[it_lut_->first].dom;
@@ -890,23 +889,21 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     DelilaEvent.det_def = LUT_DELILA[daq_ch].detType;
     DelilaEvent.channel = daq_ch;
  	hChannelHit->Fill(daq_ch);
-    
-     //Waiting for the first trigger to come
-//     if ((DelilaEvent.det_def == 99)&&(!blFirstTrigger)) {
-//        blFirstTrigger = true;
-//        LastTriggerEvent = DelilaEvent;
-//        LastBunchEvent = DelilaEvent;// + n_bunches * 400000;
-//        trigger_cnt++;
-//        std::cout<<"first trigger "<<  LastTriggerEvent.Time <<" "<<LastBunchEvent.Time<< "\n";
-//     };     
-//     if (!blFirstTrigger) return kTRUE;
-    
-       
+
     //Check that daq_ch is defined in LUT
-    std::map<unsigned int, TDelilaDetector >::iterator it = LUT_DELILA.find(daq_ch);
-    if(it == LUT_DELILA.end()){return kTRUE;};
+      bool check_daq_ch = false;
+      std::map<int, TDelilaDetector >::iterator it_daq_ch_ = LUT_DELILA.begin();
+      for (; it_daq_ch_!= LUT_DELILA.end();++it_daq_ch_){
+             if (LUT_DELILA[it_daq_ch_->first].ch == daq_ch){
+               check_daq_ch = true;
+//                std::cout<<"i am here daq_ch  "<< daq_ch<<" it_daq_ch_->first "<<LUT_DELILA[it_daq_ch_->first].ch<<"\n";
+               continue;
+             };
+     };
+     if (!check_daq_ch) return kTRUE;
     
-    
+//     if (LUT_DELILA.find(daq_ch) == LUT_DELILA.end())(return kTRUE;)//did not work well
+
     DelilaEvent.domain = LUT_DELILA[daq_ch].dom;   
     int domain = DelilaEvent.domain;
     
@@ -996,10 +993,11 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
 	      << ":" << std::setw(2) << std::setfill('0')
 	      << round(((int) eta) % 60) << std::setw(8) << " min ETA)";
     std::cout.flush();
-  }
+    };
+//    };
    
    nevents++;
-   nevents_reset++;
+//    nevents_reset++;
    return kTRUE;
 }
 
@@ -1009,7 +1007,7 @@ void DelilaSelectorElifant::FillOutputTree(){
   for (; it_delila_!= delilaQu.end();++it_delila_){
       DelilaEventTreated = *it_delila_;
       outputTree->Fill();   
-  };
+   };
   return;
 }
 
@@ -1218,7 +1216,7 @@ void DelilaSelectorElifant::cs()
     //BGO-GAMMA forward
     std::map<int, double> last_bgo_time;
     
-    std::map<unsigned int, TDelilaDetector >::iterator it_lut_ = LUT_DELILA.begin();
+    std::map<int, TDelilaDetector >::iterator it_lut_ = LUT_DELILA.begin();
     for (; it_lut_ != LUT_DELILA.end(); ++it_lut_){
         last_bgo_time[LUT_DELILA[it_lut_->first].cs_dom] = -1;
     }
@@ -1355,6 +1353,8 @@ void DelilaSelectorElifant::PrintDelilaEvent(TDelilaEvent &ev_)
 
 void DelilaSelectorElifant::TimeAlignement()
 {
+   if (delilaQu.empty()) return;
+   
    std::deque<TDelilaEvent>::iterator it1_= delilaQu.begin();
    std::deque<TDelilaEvent>::iterator it2_= delilaQu.begin();
 
