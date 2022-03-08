@@ -40,7 +40,7 @@ bool blGammaGamma = false;
 bool blCS = false;
 bool blOutTree = true;
 bool blFold = false;
-bool blTimeAlignement = false;
+bool blTimeAlignement = true;
 ////////////////////////////////Please, DO NOT modify ////////////////////////////////////////////
 int addBackMode = 0; //0 - no addback; 1- addback;//not in use for ELIFANT
 bool blIsTrigger = false; //the trigger is open
