@@ -501,7 +501,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    
    
    mThetaPhi = new TH2F("mThetaPhi", "mThetaPhi", 90,60,150,360,0,360);
-   mThetaPhi->GetXaxis()->SetTitle("theta, degrees"mTimeCalib);
+   mThetaPhi->GetXaxis()->SetTitle("theta, degrees");
    mThetaPhi->GetYaxis()->SetTitle("phi, degrees");
    fOutput->Add(mThetaPhi);
       
