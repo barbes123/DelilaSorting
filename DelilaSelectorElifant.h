@@ -98,7 +98,7 @@ public :
     Float_t	        phi;
     ULong64_t       trg;
     UShort_t        bunch;
-    UShort_t        fold;
+    UShort_t        fold;    
     TDelilaEvent(): domain(-1),channel(-1),fEnergy(-1),CS(0),cs_domain(0),Time(0),trg(0),bunch(0),fold(0){};
  };
  
@@ -114,7 +114,8 @@ public :
     Float_t  theta;
     Float_t	 phi;  
     UShort_t detType;//0 - nothing; 1 - core; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 9 - pulser
-    Int_t	 TimeOffset; 
+    Int_t	 TimeOffset;
+    double_t bgo_time_offset;
     Int_t 	 threshold; 
     Int_t	 pol_order;
     Int_t    cs_dom;
@@ -123,7 +124,7 @@ public :
  };
  
   std::deque<TDelilaEvent> delilaQu;
-
+  
 //   std::map<unsigned int, TDelilaDetector > LUT_DELILA;
   std::map<int, TDelilaDetector > LUT_DELILA;    
   std::map<int, int > LUT_TA;
@@ -178,6 +179,8 @@ public :
   TH1F* hTimeInBunch;
   TH1F* hEventsPerTrigger;
   TH2F* mFoldEnergy;
+  
+  TH1F* hCoincID;
   
   TH1F* hdelilaQu_size;
   
@@ -244,6 +247,7 @@ public :
     
   TH2F* mTimeCalib;
   TH2F* mTimeCalibBGO;
+  TH2F* mTimeCalibBGO_cs_dom;
 //   TH2F* mTimeCalibDomain0;
   
     
