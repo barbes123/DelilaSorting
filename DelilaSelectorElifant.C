@@ -37,7 +37,7 @@ using namespace std;
 
 ////////////////////////////////Please, modify if needed////////////////////////////////////////////
 bool blGammaGamma = true;
-bool blCS = true;
+bool blCS = false;
 bool blOutTree = true;
 bool blFold = false;
 bool blTimeAlignement = true;
