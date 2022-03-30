@@ -37,7 +37,8 @@ using namespace std;
 
 ////////////////////////////////Please, modify if needed////////////////////////////////////////////
 bool blGammaGamma = true;
-bool blCS = false;
+// bool blGammaGammaGamma = false;
+bool blCS = true;
 bool blOutTree = false;
 bool blFold = false;
 bool blTimeAlignement = false;
@@ -617,8 +618,23 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
   hMult[itna->first]->GetXaxis()->SetTitle("Multiplicity");
   hMult[itna->first]->GetYaxis()->SetTitle("Counts");
   fOutput->Add(hMult[itna->first]);
+
+//   mGG_theta[itna->first] = new TH2F(Form("%s_mGG_theta",itna->second.c_str()), Form("%s",itna->second.c_str()),  360, -180, 180, 4096, -0.5, 16383.5);
   
-  
+//   if (itna->first == 33){
+//   cGGTheta = new TH3F("cGGTheta", "cGGTheta",  6400, -3.2, 3.2, 4096, -0.5, 16383.5, 4096, -0.5, 16383.5);
+//   cGGTheta->GetXaxis()->SetTitle("#delta#theta, rad");
+//   cGGTheta->GetYaxis()->SetTitle("4 keV / bin");
+//   cGGTheta->GetZaxis()->SetTitle("4 keV / bin");
+//   fOutput->Add(cGGTheta);
+// 
+//   //cGGG = new TH3F("cGGG", "cGGG", 4096, -0.5, 16383.5, 4096, -0.5, 16383.5, 4096, -0.5, 16383.5);
+//   cGGG = new TH3F("cGGG", "cGGG", 2048, -0.5, 16383.5, 2048, -0.5, 16383.5, 2048, -0.5, 16383.5);
+//   cGGG->GetXaxis()->SetTitle("4 keV / bin");
+//   cGGG->GetYaxis()->SetTitle("4 keV / bin");
+//   cGGG->GetZaxis()->SetTitle("4 keV / bin");
+//   fOutput->Add(cGGG);  
+//   }
   
    if (itna->first == 13){
        mGG[itna->first]->GetXaxis()->SetTitle("LaBr, keV"); mGG[itna->first]->GetYaxis()->SetTitle("HPGe, keV");
@@ -629,12 +645,12 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
        mGG_long[itna->first]->GetXaxis()->SetTitle("LaBr, keV"); mGG_long[itna->first]->GetYaxis()->SetTitle("HPGe, keV");
        mGG_CS_long[itna->first]->GetXaxis()->SetTitle("LaBr, keV"); mGG_CS_long[itna->first]->GetYaxis()->SetTitle("HPGe, keV");
        mGG_DC_long[itna->first]->GetXaxis()->SetTitle("LaBr, keV"); mGG_DC_long[itna->first]->GetYaxis()->SetTitle("HPGe, keV");
-       mGG_CS_DC_long[itna->first]->GetXaxis()->SetTitle("LaBr, keV"); mGG_CS_DC_long[itna->first]->GetYaxis()->SetTitle("HPGe, keV");              
+       mGG_CS_DC_long[itna->first]->GetXaxis()->SetTitle("LaBr, keV"); mGG_CS_DC_long[itna->first]->GetYaxis()->SetTitle("HPGe, keV");    
    };
    
    if (itna->first == 11){//for core-core
 //     mGG_time_diff[itna->first] = new TH2F(Form("%s_time_diff",itna->second.c_str()), Form("%s_time_diff",itna->second.c_str()), 100, 0, 100, 10e3, -2e6, 2e6);//was tuned like that
-       mGG_time_diff[itna->first] = new TH2F(Form("%s_time_diff",itna->second.c_str()), Form("%s_time_diff",itna->second.c_str()), max_domain, 0, max_domain, 4e4, -2e6, 2e6);
+       mGG_time_diff[itna->first] = new TH2F(Form("%s_time_diff",itna->second.c_str()), Form("%s_time_diff",itna->second.c_str()), max_domain, 0, max_domain, 4e2, -2e6, 2e6);
 
    }else{
      mGG_time_diff[itna->first] = new TH2F(Form("%s_time_diff",itna->second.c_str()), Form("%s_time_diff",itna->second.c_str()), max_domain, 0, max_domain, 4e4, -2e6, 2e6);
@@ -788,8 +804,8 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
 //    mTimeCalibDomain0->SetTitle("Sci time diff");
 //    fOutput->Add(mTimeCalibDomain0);
    
-   mTimeDiffCS = new TH2F("mTimeDiffCS", "mTimeDiffCS", 100, 0, 100, 4e4, -2e6, 2e6);
-   mTimeDiffCS->GetXaxis()->SetTitle("domin");
+   mTimeDiffCS = new TH2F("mTimeDiffCS", "mTimeDiffCS", 100, 0, 100, 4e3, -2e6, 2e6);
+   mTimeDiffCS->GetXaxis()->SetTitle("domain");
    mTimeDiffCS->GetYaxis()->SetTitle("ps");
    mTimeDiffCS->SetTitle("LaBr_BGO time diff");
    fOutput->Add(mTimeDiffCS);
@@ -949,12 +965,11 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
    
 //    blIsTrigger = true;
     //first core open the trigger if not open before;
-   if ((!blIsTrigger)&&(TriggerDecision())) {
-       SetUpNewTrigger();
-       return kTRUE;
-   };
-   
-   if (blIsTrigger){
+   //if ((!blIsTrigger)&&(TriggerDecision())) {
+   if (!blIsTrigger) {
+       if (TriggerDecision()) SetUpNewTrigger();
+//        return kTRUE;
+   }else {//if (blIsTrigger){
        
        double time_diff_trigger = DelilaEvent.Time - LastTriggerEvent.Time;
        
@@ -1059,6 +1074,7 @@ void DelilaSelectorElifant::gamma_gamma()
    
    std::deque<TDelilaEvent>::iterator it1_= delilaQu.begin();
    std::deque<TDelilaEvent>::iterator it2_= delilaQu.begin();
+   std::deque<TDelilaEvent>::iterator it3_= delilaQu.begin();
    
    std::deque<TDelilaEvent>::iterator it_tmp_= delilaQu.begin();
    
@@ -1085,13 +1101,29 @@ void DelilaSelectorElifant::gamma_gamma()
 //              if (coinc_id != 11) time_diff_gg-=GetCoincTimeCorrection(it1_->domain, it2_->domain);
 
             mGG_time_diff[coinc_id]->Fill(it1_->domain,time_diff_gg);
+//             mGG_theta[coinc_id]->Fill(it1_->theta - it2_->theta, it1_->EnergyCal);
+//             mGG_theta[coinc_id]->Fill(it1_->theta - it2_->theta, it2_->EnergyCal);
             hCoincID->Fill(coinc_id);
+//            if (coinc_id == 33){
+               double_t delta_theta = it1_->theta - it2_->theta;
+//                cGGTheta->Fill(delta_theta, it1_->EnergyCal, 1);
+//             };
+//             cGGTheta->Fill(1,2,3);
 //              std::cout<<" "<<time_diff_gg<<" time_diff_gg "<<coinc_id<<" "<<coinc_gates[coinc_id]<<" \n ";
 //             if (coinc_id == 11 ) std::cout<<" "<<time_diff_gg<<" time_diff_gg "<<coinc_id<<" "<<coinc_gates[coinc_id]<<" \n ";
             if (abs(time_diff_gg) < coinc_gates[coinc_id]){
                   mGG[coinc_id]->Fill(it1_->EnergyCal, it2_->EnergyCal);
                   nmult[coinc_id]++;
               };
+              
+  /*            for (; it3_!= delilaQu.end();++it3_){
+                if (it3_ == it1_) continue;
+                if (it3_ == it2_) continue;      
+                if ((it3_->det_def != 1 )&&(it3_->det_def != 2 )&&(it3_->det_def != 3 )) continue;
+//                  cGGG->Fill(it1_->EnergyCal, it2_->EnergyCal, it3_->EnergyCal);
+                cGGG->Fill(1,2,3);
+                
+              }*/;
         };
      };
         
@@ -1196,6 +1228,9 @@ void DelilaSelectorElifant::Terminate()
             }else if (obj->IsA()->InheritsFrom(TH2F::Class())){
             TH2 *h2 = (TH2*)obj;
                 if (h2->GetEntries()>0) obj->Write();
+            }else if (obj->IsA()->InheritsFrom(TH3F::Class())){
+            TH3 *h3 = (TH3*)obj;
+                if (h3->GetEntries()>0) obj->Write();
             }
         };
         
@@ -1253,10 +1288,11 @@ void DelilaSelectorElifant::cs()
                  break;  
                }else{
                  //time_diff_bgo =  (*it_ev__).TimeBunch - last_bgo_time[cs_dom] - LUT_DELILA[it_ev__->channel].bgo_time_offset ;// GetCoincTimeCorrection(it_ev__->domain, last_bgo_time[cs_dom].domain);
-                  time_diff_bgo =  (*it_ev__).Time - last_bgo_time[cs_dom] - LUT_DELILA[it_ev__->channel].bgo_time_offset ;// GetCoincTimeCorrection(it_ev__->domain,
+                 time_diff_bgo =  (*it_ev__).Time - last_bgo_time[cs_dom] - LUT_DELILA[it_ev__->channel].bgo_time_offset ;// GetCoincTimeCorrection(it_ev__->domain,
                  mTimeDiffCS ->Fill(cs_dom, time_diff_bgo);
 //                  std::cout<<"time_diff_bgo forw "<<time_diff_bgo<<" id: "<< det*10+5 <<" "<<coinc_gates[det*10+5]<<"\n";
-                 if (abs(time_diff_bgo) < coinc_gates[det*10+5]) //10000)
+                // if (abs(time_diff_bgo) < coinc_gates[det*10+5]) //10000)
+                  if (abs(time_diff_bgo) < 300000) //10000)
                  {
                       (*it_ev__).CS = 1;  
                  }else{
@@ -1297,8 +1333,9 @@ void DelilaSelectorElifant::cs()
 //                  time_diff_bgo =  (*it_ev__).TimeBunch - last_bgo_time[cs_dom]  - LUT_DELILA[it_ev__->channel].bgo_time_offset;//GetCoincTimeCorrection(it_ev__->domain, last_bgo_time[cs_dom].domain);
                  time_diff_bgo =  (*it_ev__).Time - last_bgo_time[cs_dom]  - LUT_DELILA[it_ev__->channel].bgo_time_offset;
                  mTimeDiffCS ->Fill(cs_dom, time_diff_bgo); 
-//                 std::cout<<"time_diff_bgo back "<<time_diff_bgo<<" id "<<det*10+5 <<" "<<coinc_gates[det*10+5]<<"\n";
-                if (abs(time_diff_bgo) < coinc_gates[det*10+5]) //10000)
+//                  std::cout<<"time_diff_bgo back "<<time_diff_bgo<<" id "<<det*10+5 <<" "<<coinc_gates[det*10+5]<<"\n";
+//                 if (abs(time_diff_bgo) < coinc_gates[det*10+5]) //10000)
+                if (abs(time_diff_bgo) < 300000) //10000)
                  {
                       (*it_ev__).CS = 1;  
                  }else{

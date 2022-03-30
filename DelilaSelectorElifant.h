@@ -40,6 +40,7 @@
 #include <TTreeReaderValue.h>
 #include <TTreeReaderArray.h>
 #include <TVector3.h>
+#include <TH3.h>
 #include <TH2.h>
 #include <TH1.h>
 #include <TF1.h>
@@ -203,7 +204,11 @@ public :
   TH2F* mDomainTimeDiff_trigger;
   TH2F* mDomainTimeDiff_bunch;
   
+  TH3F* cGGTheta;
+  TH3F* cGGG;
+  
   std::map<int, TH2F*> mGG;
+  std::map<int, TH2F*> mGG_theta;
   std::map<int, TH2F*> mGG_CS;
   std::map<int, TH2F*> mGG_DC;
   std::map<int, TH2F*> mGG_CS_DC;
