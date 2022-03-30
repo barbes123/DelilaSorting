@@ -31,13 +31,12 @@
 #include <TString.h>
 #include <TObjString.h>
 #include <unordered_set>
-#include <iomanip>      // std::setwsorted
+#include <iomanip>      // sTreatDelilaEventtd::setwsorted
 using namespace std;
 
 
 ////////////////////////////////Please, modify if needed////////////////////////////////////////////
 bool blGammaGamma = true;
-// bool blGammaGammaGamma = false;
 bool blCS = true;
 bool blOutTree = false;
 bool blFold = false;
@@ -297,7 +296,7 @@ void DelilaSelectorElifant::Print_ELIADE_LookUpTable()
     std::map<int, TDelilaDetector > ::iterator it__ = LUT_DELILA.begin();
     for (; it__ != LUT_DELILA.end(); ++it__) {
      // is >> curDet.ch >> curDet.dom >> theta >> phi >> curDet.TimeOffset >> curDet.threshold;
-	std::cout<<" Ch "<<LUT_DELILA[it__->first].ch<<" Dom "<< LUT_DELILA[it__->first].dom<<" "<< LUT_DELILA[it__->first].theta<<" "<< LUT_DELILA[it__->first].phi <<" offset "<< LUT_DELILA[it__->first].TimeOffset<<" Thr "<< LUT_DELILA[it__->first].threshold<<" serial "<<LUT_DELILA[it__->first].serial<<" theta" <<LUT_DELILA[it__->first].theta<<" phi "<<LUT_DELILA[it__->first].phi <<" cs_dom: "<<LUT_DELILA[it__->first].cs_dom<<" pol_order: " <<LUT_DELILA[it__->first].pol_order <<std::endl;
+	std::cout<<" Ch "<<LUT_DELILA[it__->first].ch<<" Dom "<< LUT_DELILA[it__->first].dom<<" "<< LUT_DELILA[it__->first].theta<<" "<< LUT_DELILA[it__->first].phi <<" offset "<< LUT_DELILA[it__->first].TimeOffset<<" Thr "<< LUT_DELILA[it__->first].threshold<<" serial "<<LUT_DELILA[it__->first].serial<<" theta "<<LUT_DELILA[it__->first].theta<<" phi "<<LUT_DELILA[it__->first].phi <<" cs_dom: "<<LUT_DELILA[it__->first].cs_dom<<" pol_order: " <<LUT_DELILA[it__->first].pol_order <<std::endl;
     }
 };
 
@@ -396,7 +395,7 @@ void DelilaSelectorElifant::Begin(TTree * tree)
   lastDelilaTime = 0;
   
   Read_ELIADE_LookUpTable();
-//   Print_ELIADE_LookUpTable();
+  Print_ELIADE_LookUpTable();
   Read_TimeAlignment_LookUpTable();
 //   Read_TimeAlignment_Trigger();
   Read_Confs();
@@ -421,8 +420,14 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
 //  nevents_reset=0;
  reset_counter = 0;
 
-   hTimeSort = new TH1F("hTimeSort", "hTimeSort", 1e3, -1e5,1e5);
+   hTimeSort = new TH1F("hTimeSort", "time_diff: current-last", 1e3, -1e5,1e5);
+   hTimeSort->GetXaxis()->SetTitle("ps");
    fOutput->Add(hTimeSort);
+   
+   hTimeZero = new TH1F("hTimeZero", "Events with zero time", 100, -0.5, 99.5);
+   hTimeZero->GetXaxis()->SetTitle("ch");
+   hTimeZero->GetYaxis()->SetTitle("counts");   
+   fOutput->Add(hTimeZero);
     
    hChannelHit = new TH1F("hChannelHit", "hChannelHit",3216,0,3216);
    fOutput->Add(hChannelHit);
@@ -533,7 +538,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
 //    gg_coinc_id[33]="mgg_labr_labr";
    
    detector_name[1]="HPGe";
-   detector_name[2]="seg";
+   detector_name[2]="SEG";
    detector_name[3]="LabBr";
    detector_name[5]="BGO";
    detector_name[9]="pulser";
@@ -923,7 +928,9 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
              };
      };
      if (!check_daq_ch) return kTRUE;
-    
+
+     if (debug){std::cout<<"I am doing new entry, ch:"<< daq_ch << "\n";}
+
 //     if (LUT_DELILA.find(daq_ch) == LUT_DELILA.end())(return kTRUE;)//did not work well
 
     DelilaEvent.domain = LUT_DELILA[daq_ch].dom;   
@@ -933,6 +940,9 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     hDomainHit->Fill(domain);
     hDetTypeHit->Fill(DelilaEvent.det_def);
    
+    
+    if (debug){std::cout<<"I am doing entry here, ch:"<< daq_ch << "\n";}
+    
     DelilaEvent.EnergyCal = CalibDet(DelilaEvent.fEnergy, daq_ch);
     
     if ((DelilaEvent.EnergyCal < LUT_DELILA[daq_ch].threshold)&&(DelilaEvent.det_def < 9)) return kTRUE;
@@ -941,18 +951,29 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     DelilaEvent.theta= LUT_DELILA[daq_ch].theta;
     DelilaEvent.phi= LUT_DELILA[daq_ch].phi;
 
+    if (debug){std::cout<<" and here, ch:"<< daq_ch << "\n";}
 
      //Check if the tree is time sorted
      DelilaEvent.Time = fTimeStampFS;
      
      double time_diff_last = DelilaEvent.Time - lastDelilaTime;
+     
+     
+//      if (debug){std::cout<<" and also here1, ch:"<< daq_ch << "\n";}
+     
      //Check that the Tree is sorted in Time
      if (time_diff_last<0){std::cout<<"Warning time_diff_last: .Time  TTree may be not sorted by time"<< time_diff_last<<" \n";};
-     if (DelilaEvent.Time == 0) {hTimeZero->Fill(DelilaEvent.fChannel);};
+     if (DelilaEvent.Time == 0) {hTimeZero->Fill(daq_ch);};
      hTimeSort->Fill(time_diff_last);
      
-     lastDelilaTime = fTimeStampFS;     
      
+//      if (debug){std::cout<<" and also here2, ch:"<< daq_ch << "\n";}
+     
+     
+     lastDelilaTime = fTimeStampFS;     
+    
+     
+
      //DelilaEvent.Time-=LUT_TA_TRG[DelilaEvent.domain]; //this is for the trigger version
 
           
@@ -962,6 +983,8 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     };
     
    TreatDelilaEvent();
+   
+   if (debug){std::cout<<"I did TreatDelilaEvent() \n";}
    
 //    blIsTrigger = true;
     //first core open the trigger if not open before;
@@ -993,7 +1016,7 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
            DelilaEvent.trg = trigger_cnt;
 //            DelilaEvent.TimeBunch = time_diff_trigger;
        
-//        trigger_cnt++;
+          trigger_cnt++;
 //        if ((DelilaEvent.det_def == 3)||(DelilaEvent.det_def == 1)){
 //            mEnergy_time_diff[domain]->Fill(DelilaEvent.EnergyCal,DelilaEvent.TimeBunch);
            if (blTimeAlignement) {TimeAlignement();}

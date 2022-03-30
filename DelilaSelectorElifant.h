@@ -111,7 +111,8 @@ public :
   public:
     Int_t	 dom;
     int	 ch;//ch daq
-    Int_t	 serial;
+//     Int_t	 serial;
+    TString	 serial;
     Float_t  theta;
     Float_t	 phi;  
     UShort_t detType;//0 - nothing; 1 - core; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 9 - pulser
