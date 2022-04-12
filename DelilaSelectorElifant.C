@@ -40,7 +40,7 @@ bool blGammaGamma = true;
 bool blCS = true;
 bool blOutTree = false;
 bool blFold = false;
-bool blTimeAlignement = false;
+bool blTimeAlignement = true;
 ////////////////////////////////Please, DO NOT modify ////////////////////////////////////////////
 int addBackMode = 0; //0 - no addback; 1- addback;//not in use for ELIFANT
 bool blIsTrigger = false; //the trigger is open
@@ -424,7 +424,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    hTimeSort->GetXaxis()->SetTitle("ps");
    fOutput->Add(hTimeSort);
    
-   hTimeZero = new TH1F("hTimeZero", "Events with zero time", 100, -0.5, 99.5);
+   hTimeZero = new TH1F("hTimeZero", "Events with zero time", 500, -0.5, 499.5);
    hTimeZero->GetXaxis()->SetTitle("ch");
    hTimeZero->GetYaxis()->SetTitle("counts");   
    fOutput->Add(hTimeZero);
@@ -499,7 +499,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    ///////////////////////
    
    
-   hdelilaQu_size = new TH1F("hdelilaQu_size", "hdelilaQu_size", 20,0,20);
+   hdelilaQu_size = new TH1F("hdelilaQu_size", "hdelilaQu_size", 100,0,100);
    hdelilaQu_size->GetXaxis()->SetTitle("size");
    hdelilaQu_size->GetYaxis()->SetTitle("counts");
    fOutput->Add(hdelilaQu_size);
@@ -540,7 +540,9 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    detector_name[1]="HPGe";
    detector_name[2]="SEG";
    detector_name[3]="LabBr";
-   detector_name[5]="BGO";
+   detector_name[4]="CsI";
+   detector_name[5]="BGOs";//side
+   detector_name[6]="BGOf";//front
    detector_name[9]="pulser";
    
    std::map<UInt_t, Float_t>::iterator it_c_gates_ =  coinc_gates.begin();
@@ -954,7 +956,8 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     if (debug){std::cout<<" and here, ch:"<< daq_ch << "\n";}
 
      //Check if the tree is time sorted
-     DelilaEvent.Time = fTimeStampFS;
+//      DelilaEvent.Time = fTimeStampFS;
+     DelilaEvent.Time=fTimeStamp;
      
      double time_diff_last = DelilaEvent.Time - lastDelilaTime;
      
@@ -970,7 +973,7 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
 //      if (debug){std::cout<<" and also here2, ch:"<< daq_ch << "\n";}
      
      
-     lastDelilaTime = fTimeStampFS;     
+     lastDelilaTime = DelilaEvent.Time;     
     
      
 
