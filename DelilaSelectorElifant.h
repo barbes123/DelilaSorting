@@ -84,7 +84,7 @@ public :
 //     ULong64_t	    fTimeStamp;
 //     double_t	    fTimeStampFS;//FineTS
     UShort_t	    fEnergy;//ChargeLong
-//     UShort_t	    fEnergyShort;//ChargeShot  
+    UShort_t	    fEnergyShort;//ChargeShot  
     UShort_t        det_def;//0 - nothing; 1 - core/single HPge; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 7 -BGO - 3; 8 - solar cell; 9 - pulser
     float	        EnergyCal;
     float           EnergyDC;
@@ -183,6 +183,7 @@ public :
   TH2F* mFoldEnergy;
   
   TH1F* hCoincID;
+  TH1F* hTriggerDomain;
   
   TH1F* hdelilaQu_size;
   
@@ -251,9 +252,13 @@ public :
   TH1F* hTimeZero;
   TH1F* hTimeSort;
     
+  TH2F* mTimeCalibDomain0;
   TH2F* mTimeCalib;
   TH2F* mTimeCalibBGO;
   TH2F* mTimeCalibBGO_cs_dom;
+  
+  TH2F* mNeutron;
+  TH2F* mShortLong;
 //   TH2F* mTimeCalibDomain0;
   
     
@@ -307,7 +312,11 @@ public :
    virtual void FillOutputTree();
    virtual void TimeAlignement();
    virtual bool TriggerDecision();
- 
+   virtual void TimeAlignementTrigger();
+   
+   virtual void TreatLaBrSingle();
+   virtual void TreatHpGeSingle();
+   virtual void TreatNeutronSingle();
 
    ClassDef(DelilaSelectorElifant,0);
    
