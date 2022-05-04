@@ -301,7 +301,7 @@ public :
    virtual float CalibDet(float,int);
    virtual int GetCoincTimeCorrection(int dom1, int dom2);
    virtual void cs();
-   virtual void gamma_gamma();
+   
    virtual void TreatDelilaEvent();
    virtual void TreatFold(int det); 
    virtual int GetCoincID(int dom1, int dom2);
@@ -317,6 +317,11 @@ public :
    virtual void TreatLaBrSingle();
    virtual void TreatHpGeSingle();
    virtual void TreatNeutronSingle();
+   virtual void TreatSolarSingle();
+   virtual void TreatACS();
+   
+   virtual void TreatGammaGammaCoinc();
+   virtual void TreatSolarLaBrCoinc();
 
    ClassDef(DelilaSelectorElifant,0);
    
