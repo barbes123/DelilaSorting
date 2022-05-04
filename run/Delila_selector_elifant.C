@@ -7,7 +7,7 @@
 using namespace std;
 
 
-string data_dir = "/rosphere/2022_w10/root_files";
+string data_dir = "/rosphere/2022_w15_252Cf/root_files";
 
 /*bool is_file_exist(std::stringstream fileName)
 {

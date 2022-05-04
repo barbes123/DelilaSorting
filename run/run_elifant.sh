@@ -2,9 +2,9 @@
 
 FIRSTrun=$1
 #LASTrun=$3
-volume1=$2
-volume2=$3
-numberofevents=$4
+volume1=${2:-0}
+volume2=${3:-$volume1}
+numberofevents=${4:-0}
 
 #echo "Will run the selector for runs $FIRSTrun upto $LASTrun "
 #echo "Will run the selector for volumes $volume1 upto $volume2 "		
