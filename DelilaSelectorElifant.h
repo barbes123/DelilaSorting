@@ -81,8 +81,6 @@ public :
  public:
     UChar_t	        fMod; 
     UChar_t	        fChannel;    
-//     ULong64_t	    fTimeStamp;
-//     double_t	    fTimeStampFS;//FineTS
     UShort_t	    fEnergy;//ChargeLong
     UShort_t	    fEnergyShort;//ChargeShot  
     UShort_t        det_def;//0 - nothing; 1 - core/single HPge; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 7 -BGO - 3; 8 - solar cell; 9 - pulser
@@ -124,13 +122,13 @@ public :
     std::vector<float> calibE;
     TDelilaDetector(): dom(-1),phi(-1),theta(-1),TimeOffset(0),calibE(0),threshold(-1),ch(-1),pol_order(-1){};
  };
- 
-  std::deque<TDelilaEvent> delilaQu;
+  std::vector<TDelilaEvent>     *ElifantEvent;
+  std::deque<TDelilaEvent>      delilaQu;
   
 //   std::map<unsigned int, TDelilaDetector > LUT_DELILA;
-  std::map<int, TDelilaDetector > LUT_DELILA;    
-  std::map<int, int > LUT_TA;
-  std::map<int, double_t > LUT_TA_TRG;
+  std::map<int, TDelilaDetector >       LUT_DELILA;    
+  std::map<int, int >                   LUT_TA;
+  std::map<int, double_t >              LUT_TA_TRG;
 
   TDelilaEvent DelilaEvent;  
   TDelilaEvent DelilaEventTreated ;
@@ -356,6 +354,9 @@ void DelilaSelectorElifant::Init(TTree *tree)
   outputTree->Branch("fCS",&DelilaEventTreated .CS,"CS/b");
   outputTree->Branch("fTRG",&DelilaEventTreated .trg,"Trigger/b");
   outputTree->Branch("fFold",&DelilaEventTreated .fold,"Fold/b");
+  
+  ElifantEvent= new std::vector<TDelilaEvent>;
+  outputTree->Branch("ElifantEvents",&ElifantEvent);
 }
 
 Bool_t DelilaSelectorElifant::Notify()

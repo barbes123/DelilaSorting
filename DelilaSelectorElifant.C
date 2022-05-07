@@ -102,19 +102,9 @@ void DelilaSelectorElifant::Read_ELIADE_LookUpTable() {
       if (curDet.ch >= 0) {
           curDet.theta *= TMath::DegToRad();
           curDet.phi *= TMath::DegToRad();
-	//theta *= TMath::DegToRad();
-	//phi *= TMath::DegToRad();
-//	TVector3 DetPos;
-//	curDet.direction.SetMagThetaPhi(210, theta, phi);
 	int pol_order = 0;
-	//Now we sorted_run_354.roottry to get the EeEw selection with a simple line
  	float offset_gate(0.),slope_gate(1.);
     is >> offset_gate;
-// 	is >> offset_gate >> slope_gate;
-	//curDet.rejectionEeEw = new TF1(Form("Ge_%2i_EeEw",curDet.domain),
-	//			       "pol1");
-	//curDet.rejectionEeEw->FixParameter(0,offset_gate);
-	//curDet.rejectionEeEw->FixParameter(1,slope_gate);
 	is >> pol_order;
 	curDet.pol_order = pol_order;
     if (debug) std::cout << "Cal order " << pol_order << "  ";
@@ -1018,11 +1008,12 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
          TreatSolarSingle();
      };
      
-     if (DelilaEvent.det_def <=3){
-        TreatSolarSingle();
+     if (DelilaEvent.det_def == 3){
+        TreatDelilaEvent();
+        ElifantEvent->push_back(DelilaEvent);
      };
     
-   TreatDelilaEvent();
+//    TreatDelilaEvent();
    
    if (debug){std::cout<<"I did TreatDelilaEvent() \n";}
    
@@ -1038,8 +1029,6 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
        double time_diff_trigger = DelilaEvent.Time - LastTriggerEvent.Time;
        
        if (time_diff_trigger > bunch_length){//close event
-//            std::cout<<" time_diff_trigger "<< time_diff_trigger<<" bunch_length "<<bunch_length <<" trigger_cnt "<<trigger_cnt<< " \n";
-//            if (blTimeAlignement) TimeAlignement();
            if (blTimeAlignement) TimeAlignementTrigger();
            if (blCS) cs();
            if (blGammaGamma) TreatGammaGammaCoinc();
@@ -1048,6 +1037,8 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
            
            hdelilaQu_size->Fill(delilaQu.size());
            delilaQu.clear();
+           ElifantEvent->clear();
+           outputTree->Fill();
            blIsTrigger = false;
            
            if (TriggerDecision()) SetUpNewTrigger();          
@@ -1190,6 +1181,7 @@ void DelilaSelectorElifant::SetUpNewTrigger(){
     blIsTrigger = true;
     delilaQu.push_back(DelilaEvent);
     hTriggerDomain->Fill(DelilaEvent.domain);
+    
 //     hEventsPerTrigger->Fill(trigger_events);
 //     trigger_events = 0;
     trigger_cnt++;
@@ -1215,6 +1207,8 @@ void DelilaSelectorElifant::TreatDelilaEvent()
 //     mDelilaDC_long->Fill(domain,DelilaEvent.EnergyDC);
     
 //     mThetaPhi->Fill(DelilaEvent.theta, DelilaEvent.phi);
+    
+    
 
     return;
 }
