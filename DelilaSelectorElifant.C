@@ -1010,7 +1010,7 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
      
      if (DelilaEvent.det_def == 3){
         TreatDelilaEvent();
-        ElifantEvent->push_back(DelilaEvent);
+//         ElifantEvent->push_back(DelilaEvent);
      };
     
 //    TreatDelilaEvent();
@@ -1037,7 +1037,7 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
            
            hdelilaQu_size->Fill(delilaQu.size());
            delilaQu.clear();
-           ElifantEvent->clear();
+//            ElifantEvent->clear();
            outputTree->Fill();
            blIsTrigger = false;
            

@@ -355,8 +355,8 @@ void DelilaSelectorElifant::Init(TTree *tree)
   outputTree->Branch("fTRG",&DelilaEventTreated .trg,"Trigger/b");
   outputTree->Branch("fFold",&DelilaEventTreated .fold,"Fold/b");
   
-  ElifantEvent= new std::vector<TDelilaEvent>;
-  outputTree->Branch("ElifantEvents",&ElifantEvent);
+//   ElifantEvent= new std::vector<TDelilaEvent>;//dt_mon
+//   outputTree->Branch("ElifantEvents",&ElifantEvent);//dt_mon
 }
 
 Bool_t DelilaSelectorElifant::Notify()
