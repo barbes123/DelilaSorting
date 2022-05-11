@@ -1220,34 +1220,6 @@ void DelilaSelectorElifant::TreatGammaGammaCoinc()
         
 };
 
-void DelilaSelectorElifant::SetUpNewTrigger(){
-
-    MovePreQu2Qu();
-    
-    hTriggerTrigger->Fill(DelilaEvent_.Time - LastTriggerEvent.Time);
-    hTriggerDomain->Fill(DelilaEvent_.domain);
-    LastTriggerEvent = DelilaEvent_;
-    
-    if (blAddTriggerToQueue) delilaQu.push_back(DelilaEvent_);
-    
-    TriggerTimeFlag = DelilaEvent_.Time - pre_event_length;
-    
-//     std::cout<<" TriggerTimeFlag is "<<TriggerTimeFlag<<" DelilaEvent_.Time "<<DelilaEvent_.Time<<"  \n";  
-    
-    
-    if (TriggerTimeFlag < 0){
-      std::cout<<"SetUpNewTrigger TriggerTimeFlag is < 0 \n";  
-      TriggerTimeFlag = 0;
-    };
-    
-    blIsTrigger = true;
-    blIsWindow = true;
-
-    trigger_cnt++;
-    return;
-}
-
-
 
 void DelilaSelectorElifant::TreatDelilaEvent()
 {
@@ -1658,9 +1630,9 @@ void DelilaSelectorElifant::EventBuilderSimple()
 
 void DelilaSelectorElifant::EventBuilderPreTrigger()
 {
-    if (blIsWindow){
+    if (blIsWindow){//open
        double time_diff_trigger = DelilaEvent_.Time - TriggerTimeFlag;
-       if (time_diff_trigger > event_length){//close event
+       if (abs(time_diff_trigger) > event_length){//close event
            
            if (blTimeAlignement)    TimeAlignementTrigger();
            if (blCS)                cs();
@@ -1684,14 +1656,42 @@ void DelilaSelectorElifant::EventBuilderPreTrigger()
            trigger_cnt++;
        };
        
-   }else{
-       if (TriggerDecision()) {SetUpNewTrigger();}
+   }else{//closed
+       if (TriggerDecision()) {MovePreQu2Qu(); SetUpNewTrigger();}
        else{ 
-           CheckPreQu();
+//            CheckPreQu();
            DelilaEvent_.trg = trigger_cnt;
            delilaPreQu.push_back(DelilaEvent_);
     };
    };
+}
+
+
+void DelilaSelectorElifant::SetUpNewTrigger(){
+
+//     MovePreQu2Qu();
+    
+    hTriggerTrigger->Fill(DelilaEvent_.Time - LastTriggerEvent.Time);
+    hTriggerDomain->Fill(DelilaEvent_.domain);
+    LastTriggerEvent = DelilaEvent_;
+    
+    if (blAddTriggerToQueue) delilaQu.push_back(DelilaEvent_);
+    
+    TriggerTimeFlag = DelilaEvent_.Time - pre_event_length;
+    
+//     std::cout<<" TriggerTimeFlag is "<<TriggerTimeFlag<<" DelilaEvent_.Time "<<DelilaEvent_.Time<<"  \n";  
+    
+    
+    if (TriggerTimeFlag < 0){
+      std::cout<<"SetUpNewTrigger TriggerTimeFlag is < 0 \n";  
+      TriggerTimeFlag = 0;
+    };
+    
+    blIsTrigger = true;
+    blIsWindow = true;
+
+    trigger_cnt++;
+    return;
 }
 
 void DelilaSelectorElifant::TreatACS()
