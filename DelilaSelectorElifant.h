@@ -62,6 +62,12 @@
 #include <queue>
 #include <vector>
 
+#include "DelilaEvent.h"
+#include "LaBrTreeEvent.h"
+#include "ElissaTreeEvent.h"
+// #include "LaBrEvent.h"
+// #include "ElissaEvent.h"
+
 //#include "TObjString.h."
 // Headers needed by this particular selector
 
@@ -72,38 +78,10 @@ public :
     TTree          *fChain = 0;   //!pointer to the analyzed TTree or TChain
     TFile          *foutFile;
     TTree          *outputTree;
-
-
-//   UChar_t	 uMod; 
-//   UChar_t	 uChannel; 
-
- class TDelilaEvent {
- public:
-    UChar_t	        fMod; 
-    UChar_t	        fChannel;    
-    UShort_t	    fEnergy;//ChargeLong
-    UShort_t	    fEnergyShort;//ChargeShot  
-    UShort_t        det_def;//0 - nothing; 1 - core/single HPge; 2 - segment; 3 - CeBr; 4 - CsI; 5 - BGO1; 6 - BGO2; 7 -BGO - 3; 8 - solar cell; 9 - pulser
-    float	        EnergyCal;
-    float           EnergyDC;
-    UShort_t        domain;
-    UShort_t        cs_domain;
-    UShort_t        channel;//ch daq
-    UShort_t        CS;//0 - no; 1 - yes
-    double_t        Time;
-    double_t        TimeTrg;
-    double_t        TimeBunch;
-    Float_t         theta;
-    Float_t	        phi;
-    ULong64_t       trg;
-    UShort_t        bunch;
-    UShort_t        fold;    
-    TDelilaEvent(): domain(-1),channel(-1),fEnergy(-1),CS(0),cs_domain(0),Time(0),trg(0),bunch(0),fold(0){};
- };
- 
     ULong64_t	    fTimeStamp;
     double_t	    fTimeStampFS;//FineTS
-    UShort_t	    fEnergyShort;//ChargeShot  
+    UShort_t	    fEnergyShort;
+    UShort_t	    fEnergyLong;
 
   class TDelilaDetector { 
   public:
@@ -122,38 +100,54 @@ public :
     std::vector<float> calibE;
     TDelilaDetector(): dom(-1),phi(-1),theta(-1),TimeOffset(0),calibE(0),threshold(-1),ch(-1),pol_order(-1){};
  };
-  std::vector<TDelilaEvent>     *ElifantEvent;
-  std::deque<TDelilaEvent>      delilaQu;
+ 
+//   DelilaEvent     delila_tree_event;
+  LaBrTreeEvent   labr_tree_event;
+  ElissaTreeEvent elissa_tree_event;
+ 
+  std::vector<LaBrTreeEvent>   *LabrEvent;
+  std::vector<ElissaTreeEvent> *ElissaEvent;
+  
+  std::deque<DelilaEvent>      delilaQu;
+  std::deque<DelilaEvent>      delilaPreQu;
+  
+  //Part for PHA
+  short          fSignal[2000]; // add by saka //RecordLength branch is not read we assume rl = 2000
+//   float          Amax; //add by saka
+  
   
 //   std::map<unsigned int, TDelilaDetector > LUT_DELILA;
   std::map<int, TDelilaDetector >       LUT_DELILA;    
   std::map<int, int >                   LUT_TA;
   std::map<int, double_t >              LUT_TA_TRG;
 
-  TDelilaEvent DelilaEvent;  
-  TDelilaEvent DelilaEventTreated ;
-  TDelilaEvent lastDelilaEvent;  
-  TDelilaEvent lastEliadeZeroEvent;
-  TDelilaEvent LastTriggerEvent;
-  TDelilaEvent LastBunchEvent;    
+  DelilaEvent DelilaEvent_;  
+  DelilaEvent DelilaEventTreated ;
+  DelilaEvent lastDelilaEvent;  
+  DelilaEvent lastEliadeZeroEvent;
+  DelilaEvent LastTriggerEvent;
+  DelilaEvent LastBunchEvent;    
   
-  TDelilaEvent PulserEvent;
-  TDelilaEvent DomainZeroEvent;    
+  DelilaEvent PulserEvent;
+  DelilaEvent DomainZeroEvent;    
   
-  TDelilaEvent startEventCore;  
-  TDelilaEvent startEventSegment;  
 
   TBranch *b_channel;
   TBranch *b_tstmp;
   TBranch *b_tstmp_fine;
   TBranch *b_energ;  //ChargeLong
   TBranch *b_energ_short;  //ChargeShot
-  TBranch *b_mod;  
+  TBranch *b_mod;
+  TBranch *b_signal;
   
   Long64_t nb_entries;
   
-  Long64_t bunch_length;
+  Long64_t event_length;
+  Long64_t pre_event_length;
   Long64_t bunch_reset;
+  
+  UChar_t	        fMod; 
+  UChar_t	        fChannel; 
  
   TH1F* hChannelHit;
   TH1F* hDomainHit;
@@ -204,9 +198,6 @@ public :
   TH2F* mDomainTimeDiff_trigger;
   TH2F* mDomainTimeDiff_bunch;
   
-  TH3F* cGGTheta;
-  TH3F* cGGG;
-  
   std::map<int, TH2F*> mGG;
   std::map<int, TH2F*> mGG_theta;
   std::map<int, TH2F*> mGG_CS;
@@ -219,7 +210,7 @@ public :
   std::map<int, TH2F*> mGG_DC_long;
   std::map<int, TH2F*> mGG_CS_DC_long;
   
-//   std::map<int, TH2F*> mTimeDiff;
+//   std::map<int, TH2F*> mTimeDiffselected_run_2022_0.root;
   std::map<int, TH1F*> hMult;
 
   std::map<UInt_t, std::string> gg_coinc_id;
@@ -258,6 +249,9 @@ public :
   TH2F* mNeutron;
   TH2F* mShortLong;
 //   TH2F* mTimeCalibDomain0;
+  
+  TH1F *hAmax;
+  TH2F *mAmaxEnergy;
   
     
   std::clock_t start;
@@ -302,24 +296,35 @@ public :
    
    virtual void TreatDelilaEvent();
    virtual void TreatFold(int det); 
-   virtual int GetCoincID(int dom1, int dom2);
-   virtual int GetCoinc_det_def(int det_def1, int det_def2);
+   virtual int  GetCoincID(int dom1, int dom2);
+   virtual int  GetCoinc_det_def(int det_def1, int det_def2);
    virtual void CheckPulserAllignement(int zero_dom);
-   virtual void PrintDelilaEvent(TDelilaEvent &ev_);
-   virtual void SetUpNewTrigger();
+   virtual void PrintDelilaEvent(DelilaEvent &ev_);
+   
    virtual void FillOutputTree();
    virtual void TimeAlignement();
-   virtual bool TriggerDecision();
+   
    virtual void TimeAlignementTrigger();
+   
+   
+   virtual void EventBuilderSimple();
+   virtual void EventBuilderPreTrigger();
+   virtual bool TriggerDecision();
+   virtual void SetUpNewTrigger();
+   virtual void CheckPreQu();
+   virtual void MovePreQu2Qu();
+
    
    virtual void TreatLaBrSingle();
    virtual void TreatHpGeSingle();
    virtual void TreatNeutronSingle();
-   virtual void TreatSolarSingle();
+   virtual void TreatElissaSingle();
    virtual void TreatACS();
    
    virtual void TreatGammaGammaCoinc();
    virtual void TreatSolarLaBrCoinc();
+   
+   virtual std::vector<float> trapezoidal(short wave[],int length, int L, int G);//L = 20; G = 0
 
    ClassDef(DelilaSelectorElifant,0);
    
@@ -342,21 +347,34 @@ void DelilaSelectorElifant::Init(TTree *tree)
    
   foutFile->cd();
   outputTree = new TTree("SelectedDelila","SelectedDelila");
+  
+  LabrEvent= new std::vector<LaBrTreeEvent>;
+  outputTree->Branch("LaBrEvents",&LabrEvent);
+  
+  ElissaEvent= new std::vector<ElissaTreeEvent>;
+  outputTree->Branch("ElissaEvents",&ElissaEvent);
+  
+  
+  
+  
 //   outputTree->Branch("fTEventTS",&DelilaEventTreated .fTimeStamp,"TimeStamp/l");
 //   outputTree->Branch("fTEventFS",&DelilaEventTreated .fTimeStampFS,"TimeStamp/D");
-  outputTree->Branch("fTimeBunch",&DelilaEventTreated .TimeBunch,"TimeBunch/D");
-  outputTree->Branch("fTime",&DelilaEventTreated .Time,"Time/D");
-  outputTree->Branch("fEnergy",&DelilaEventTreated .fEnergy,"Energy/F");
-  outputTree->Branch("fEnergy_kev",&DelilaEventTreated .EnergyCal,"Energy_kev/F");
-  outputTree->Branch("fEnergyDC",&DelilaEventTreated .EnergyDC,"EnergyDC/F");
-  outputTree->Branch("fDomain",&DelilaEventTreated .domain,"Domain/b");
-  outputTree->Branch("fDetType",&DelilaEventTreated .det_def,"def/b");
-  outputTree->Branch("fCS",&DelilaEventTreated .CS,"CS/b");
-  outputTree->Branch("fTRG",&DelilaEventTreated .trg,"Trigger/b");
-  outputTree->Branch("fFold",&DelilaEventTreated .fold,"Fold/b");
+//   outputTree->Branch("fTimeBunch",&DelilaEventTreated .TimeBunch,"TimeBunch/D");
+//   outputTree->Branch("fTime",&DelilaEventTreated .Time,"Time/D");
+//   outputTree->Branch("fEnergy",&DelilaEventTreated .fEnergy,"Energy/F");
+//   outputTree->Branch("fEnergy_kev",&DelilaEventTreated .EnergyCal,"Energy_kev/F");
+//   outputTree->Branch("fEnergyDC",&DelilaEventTreated .EnergyDC,"EnergyDC/F");
+//   outputTree->Branch("fDomain",&DelilaEventTreated .domain,"Domain/b");
+//   outputTree->Branch("fDetType",&DelilaEventTreated .det_def,"def/b");
+//   outputTree->Branch("fCS",&DelilaEventTreated .CS,"CS/b");
+//   outputTree->Branch("fTRG",&DelilaEventTreated .trg,"Trigger/b");
+//   outputTree->Branch("fFold",&DelilaEventTreated .fold,"Fold/b");
   
-//   ElifantEvent= new std::vector<TDelilaEvent>;//dt_mon
-//   outputTree->Branch("ElifantEvents",&ElifantEvent);//dt_mon
+//   LaBrEvent= new std::vector<LaBrEvent>;//dt_mon
+//   outputTree->Branch("LaBrEvents",&LaBrEvent);//dt_mon
+  
+//   ElissaEvent= new std::vector<ElissaEvent>;//dt_mon
+//   outputTree->Branch("ElissaEvents",&ElissaEvent);//dt_mon
 }
 
 Bool_t DelilaSelectorElifant::Notify()
