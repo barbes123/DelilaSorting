@@ -101,9 +101,11 @@ public :
  };
  
 //   DelilaEvent     delila_tree_event;
+  HPGeTreeEvent   hpge_tree_event;
   LaBrTreeEvent   labr_tree_event;
   ElissaTreeEvent elissa_tree_event;
  
+  std::vector<HPGeTreeEvent>   *HPGeEvent;
   std::vector<LaBrTreeEvent>   *LabrEvent;
   std::vector<ElissaTreeEvent> *ElissaEvent;
   
@@ -299,8 +301,6 @@ public :
    virtual void PrintDelilaEvent(DelilaEvent &ev_);
    
    virtual void FillOutputTree();
-   virtual void TimeAlignement();
-   
    virtual void TimeAlignementTrigger();
    
    
@@ -356,11 +356,15 @@ void DelilaSelectorElifant::Init(TTree *tree)
   foutFile->cd();
   outputTree = new TTree("SelectedDelila","SelectedDelila");
   
+   if (has_detector["HPGe"]){
+      HPGeEvent= new std::vector<HPGeTreeEvent>;
+      outputTree->Branch("HPGeEvents",&HPGeEvent);
+    };
+  
   if (has_detector["LaBr"]){
       LabrEvent= new std::vector<LaBrTreeEvent>;
       outputTree->Branch("LaBrEvents",&LabrEvent);
     };
-  
   
   if (has_detector["Elissa"]){
       ElissaEvent= new std::vector<ElissaTreeEvent>;
