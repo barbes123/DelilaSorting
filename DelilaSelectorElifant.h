@@ -63,10 +63,9 @@
 #include <vector>
 
 #include "DelilaEvent.h"
+#include "HPGeTreeEvent.h"
 #include "LaBrTreeEvent.h"
 #include "ElissaTreeEvent.h"
-// #include "LaBrEvent.h"
-// #include "ElissaEvent.h"
 
 //#include "TObjString.h."
 // Headers needed by this particular selector
@@ -113,8 +112,6 @@ public :
   
   //Part for PHA
   short          fSignal[2000]; // add by saka //RecordLength branch is not read we assume rl = 2000
-//   float          Amax; //add by saka
-  
   
 //   std::map<unsigned int, TDelilaDetector > LUT_DELILA;
   std::map<int, TDelilaDetector >       LUT_DELILA;    
@@ -325,9 +322,18 @@ public :
    virtual void TreatSolarLaBrCoinc();
    
    virtual std::vector<float> trapezoidal(short wave[],int length, int L, int G);//L = 20; G = 0
+   
+   std::map<std::string, bool> has_detector;
+
 
    ClassDef(DelilaSelectorElifant,0);
    
+   
+//   bool has_labr;
+//   bool has_hpge;
+//   bool has_bgo;
+//   bool has_elissa;
+  
 };
 
 #endif
@@ -341,18 +347,25 @@ void DelilaSelectorElifant::Init(TTree *tree)
    // code, but the routine can be extended by the user if needed.
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
+    
+    
 
-   fReader.SetTree(tree);
-   
+  fReader.SetTree(tree);
+       
    
   foutFile->cd();
   outputTree = new TTree("SelectedDelila","SelectedDelila");
   
-  LabrEvent= new std::vector<LaBrTreeEvent>;
-  outputTree->Branch("LaBrEvents",&LabrEvent);
+  if (has_detector["LaBr"]){
+      LabrEvent= new std::vector<LaBrTreeEvent>;
+      outputTree->Branch("LaBrEvents",&LabrEvent);
+    };
   
-  ElissaEvent= new std::vector<ElissaTreeEvent>;
-  outputTree->Branch("ElissaEvents",&ElissaEvent);
+  
+  if (has_detector["Elissa"]){
+      ElissaEvent= new std::vector<ElissaTreeEvent>;
+      outputTree->Branch("ElissaEvents",&ElissaEvent);
+  };
   
   
   

@@ -272,6 +272,16 @@ void DelilaSelectorElifant::Read_Confs() {
                std::cout<<"Beta is "<<beta<<" % \n";
               break;
           };
+          case 9997:{
+               std::cout<<" Enabled detectors \n";
+               int det_list = value/1;
+               while(det_list!= 0){
+                   has_detector[detector_name[det_list%10]] = true;
+                   std::cout<<" id " << det_list%10 <<" det " << detector_name[det_list%10] << " is "<<has_detector[detector_name[det_list%10]]<<"\n";
+                   det_list = det_list/10;
+            };
+              break;
+          }
           case 9998:{
                det_def_trg = value/1;
                std::cout<<"trg_det_type "<<det_def_trg<<" \n";
@@ -398,6 +408,19 @@ void DelilaSelectorElifant::Begin(TTree * tree)
     //std::cout << "hit: " << timeStamp  << std::endl;
     lastStamp = timeStamp;
   }
+  
+  detector_name[1]="HPGe";     has_detector[detector_name[1]] = false;
+  detector_name[2]="SEG";      has_detector[detector_name[2]] = false;
+  detector_name[3]="LaBr";     has_detector[detector_name[3]] = false;
+  detector_name[4]="CsI";      has_detector[detector_name[4]] = false;
+  detector_name[5]="BGOs";     has_detector[detector_name[5]] = false; //side
+  detector_name[6]="BGOf";     has_detector[detector_name[6]] = false;//front
+  detector_name[7]="Elissa";   has_detector[detector_name[7]] = false;
+  detector_name[8]="neutron";  has_detector[detector_name[8]] = false;
+  detector_name[9]="pulser";   has_detector[detector_name[9]] = false;
+   
+
+   
 
   event_length = 40000;
   pre_event_length = 0;
@@ -557,15 +580,9 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
 //    gg_coinc_id[13]="mgg_labr_hpge";
 //    gg_coinc_id[33]="mgg_labr_labr";
    
-   detector_name[1]="HPGe";
-   detector_name[2]="SEG";
-   detector_name[3]="LabBr";
-   detector_name[4]="CsI";
-   detector_name[5]="BGOs";//side
-   detector_name[6]="BGOf";//front
-   detector_name[7]="Elissa";
-   detector_name[8]="neutron";
-   detector_name[9]="pulser";
+   
+   
+   
    
    std::map<UInt_t, Float_t>::iterator it_c_gates_ =  coinc_gates.begin();
 
@@ -959,9 +976,6 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
 
   // fReader.SetLocalEntry(entry);
     
-    LabrEvent   ->clear();
-    ElissaEvent ->clear();
-    
     GetEntry(entry);
     nb_entries = GetEntries();
 
@@ -1008,8 +1022,8 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     if (debug){std::cout<<" and here, ch:"<< daq_ch << "\n";}
 
      //Check if the tree is time sorted
-//      DelilaEvent_.Time = fTimeStampFS;
-     DelilaEvent_.Time=fTimeStamp;
+      DelilaEvent_.Time = fTimeStampFS;
+//      DelilaEvent_.Time=fTimeStamp;
      double time_diff_last = DelilaEvent_.Time - lastDelilaTime;
      
      DelilaEvent_.Time-=LUT_TA[domain];
@@ -1074,26 +1088,30 @@ void DelilaSelectorElifant::FillOutputTree(){
 
   std::deque<DelilaEvent>::iterator it_delila_ = delilaQu.begin();
   
-  ElissaEvent->clear();
-  LabrEvent->clear();
+  if (has_detector["LaBr"])   LabrEvent   ->clear();
+  if (has_detector["Elissa"]) ElissaEvent ->clear();;
   
   
   for (; it_delila_!= delilaQu.end();++it_delila_){
       switch (it_delila_->det_def){
-          case 3:{//LaBr
-              labr_tree_event.SetEnergy(it_delila_->Energy_kev);
-              labr_tree_event.SetEnergyDC(it_delila_->EnergyDC);
-              labr_tree_event.SetChannel(it_delila_->channel);
-              labr_tree_event.SetDomain(it_delila_->domain);
-              LabrEvent->push_back(labr_tree_event);
+          case 3:{
+              if (has_detector["LaBr"]){
+                  labr_tree_event.SetEnergy(it_delila_->Energy_kev);
+                  labr_tree_event.SetEnergyDC(it_delila_->EnergyDC);
+                  labr_tree_event.SetChannel(it_delila_->channel);
+                  labr_tree_event.SetDomain(it_delila_->domain);
+                  LabrEvent->push_back(labr_tree_event);
+              };
               break;
           }
           case 7:{//ELISSA
-              elissa_tree_event.SetEnergy(it_delila_->Energy_kev);
-              elissa_tree_event.SetAmax(it_delila_->Amax);
-              elissa_tree_event.SetChannel(it_delila_->channel);
-              elissa_tree_event.SetDomain(it_delila_->domain);
-              ElissaEvent->push_back(elissa_tree_event);
+               if (has_detector["Elissa"]){
+                  elissa_tree_event.SetEnergy(it_delila_->Energy_kev);
+                  elissa_tree_event.SetAmax(it_delila_->Amax);
+                  elissa_tree_event.SetChannel(it_delila_->channel);
+                  elissa_tree_event.SetDomain(it_delila_->domain);
+                  ElissaEvent->push_back(elissa_tree_event);
+               };
               break;
           }
           default : {
@@ -1101,8 +1119,17 @@ void DelilaSelectorElifant::FillOutputTree(){
               break;   
           }
       };
-      outputTree->Fill();
    };
+   
+   
+   if((has_detector["LaBr"]   && LabrEvent->size()>0)    ||
+      (has_detector["Elissa"] && ElissaEvent->size()>0))  {
+        outputTree->Fill();
+    };
+   
+   
+   
+  outputTree->Fill();
   return;
 }
 
@@ -1195,19 +1222,23 @@ void DelilaSelectorElifant::TreatGammaGammaCoinc()
 
 void DelilaSelectorElifant::SetUpNewTrigger(){
 
+    MovePreQu2Qu();
+    
     hTriggerTrigger->Fill(DelilaEvent_.Time - LastTriggerEvent.Time);
+    hTriggerDomain->Fill(DelilaEvent_.domain);
     LastTriggerEvent = DelilaEvent_;
     
     if (blAddTriggerToQueue) delilaQu.push_back(DelilaEvent_);
-    hTriggerDomain->Fill(DelilaEvent_.domain);
     
     TriggerTimeFlag = DelilaEvent_.Time - pre_event_length;
+    
+//     std::cout<<" TriggerTimeFlag is "<<TriggerTimeFlag<<" DelilaEvent_.Time "<<DelilaEvent_.Time<<"  \n";  
+    
+    
     if (TriggerTimeFlag < 0){
       std::cout<<"SetUpNewTrigger TriggerTimeFlag is < 0 \n";  
       TriggerTimeFlag = 0;
     };
-    
-    MovePreQu2Qu();
     
     blIsTrigger = true;
     blIsWindow = true;
@@ -1581,8 +1612,12 @@ void DelilaSelectorElifant::MovePreQu2Qu()
     for (; it_!= delilaPreQu.end();++it_){
            time_diff_temp = it_->Time - DelilaEvent_.Time;                      
            if (abs(time_diff_temp) < pre_event_length) delilaQu.push_back(*it_);
+//            std::cout<<"time_diff_temp  "<< time_diff_temp << " \n";
     };
-//     std::cout<<"PreQueSize is "<< delilaQu.size() << " \n";
+//     std::cout<<"PreQueSize is "<< delilaPreQu.size() << " \n";
+//     std::cout<<"delilaQueSize is "<< delilaQu.size() << " \n";
+    
+    delilaPreQu.clear();
 }
 
 void DelilaSelectorElifant::EventBuilderSimple()
