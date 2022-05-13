@@ -1088,6 +1088,7 @@ void DelilaSelector::gamma_gamma()
                 std::deque<TDelilaEvent>  ::iterator it1__ = gammagammaQu.begin();
                 std::deque<TDelilaEvent>  ::iterator it2__ = gammagammaQu.begin(); 
                 for (; it1__ != gammagammaQu.end(); ++it1__){
+                     it2__ = gammagammaQu.begin(); 
                   for (; it2__ != gammagammaQu.end(); ++it2__){
                       if (it1__ == it2__) continue;
                       mGammaGamma->Fill((*it1__).EnergyCal, (*it2__).EnergyCal);

@@ -1013,7 +1013,7 @@ void DelilaSelectorTrigger::gamma_gamma()//one gamma start the seocnd stop
          
          if ((it1_->det_def != 1 )&&(it1_->det_def != 3 )) continue;
 //          if (it1_->TimeBunch < 0 ) continue;//do not need because we shift the TimeBunch below zero
-         
+         it2__ = gammagammaQu.begin(); 
          for (; it2_!= delilaQu.end();++it2_){
              
              if (it1_ == it2_) continue;

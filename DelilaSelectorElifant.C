@@ -1179,6 +1179,7 @@ void DelilaSelectorElifant::TreatGammaGammaCoinc()
 
      for (; it1_!= delilaQu.end();++it1_){
           if ((it1_->det_def != 1 )&&(it1_->det_def != 2 )&&(it1_->det_def != 3 )&&(it1_->det_def != 7 )) continue;
+          it2_= delilaQu.begin();
          for (; it2_!= delilaQu.end();++it2_){
              if (it1_ == it2_) continue;              
               if ((it2_->det_def != 1 )&&(it2_->det_def != 2 )&&(it2_->det_def != 3 )&&(it2_->det_def != 7 )) continue;
