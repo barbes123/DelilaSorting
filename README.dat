@@ -1,14 +1,25 @@
+#DelilaSelector repository
+https://github.com/barbes123/DelilaSorting.git
 # LUT and tools are removed to another repository 
 https://github.com/barbes123/onlineAnalysis.git
 one can push to the repository from gant computer at IFIN (analysis).
 
-
 # initial DelilaSorting
 
-1. Put DelilaSorting in $HOME/DelilaSelector
-2. mkdir ../exp1/root_files [for raw root  files]
-   mkdir ../exp1/selector_files [for analysis]
-3. cp ~/DelilaSorting/run/* ../exp1/selector_files   
+1.1 	Put DelilaSorting in $HOME/DelilaSelector
+1.2 	Now threre three independent routings: 
+	DelilaSorting 		[not supported from 31.01.2022]; 
+	DelilaSortingTrigger 	[not supported from 31.03.2022]
+	DelilaSortingElifant 	[the present version]
+2   mkdir ../exp1/root_files 		[for raw root  files]
+    mkdir ../exp1/selector_files 	[for analysis]
+3   cp ~/DelilaSorting/run/[routing]/*.* ../exp1/selector_files
+    cp ~/DelilaSorting/.rootlogon.C ../exp1/selector_files    
 4. edit ../exp1/selector_files/Delila_selector.C to set data_dir the full path to the data files
-5. add environmental variable: export DELILA_LUT="$HOME/DelilaSorting"
-4. do analysis from selector_files ./run_delila.sh run_nbr verson_nbr_first verson_nbr_last
+5. Compile the libraries (only for DelilaSortingElifant). If it complains  
+   cd ~/DelilaSorting/lib
+   ./setup.sh 
+6. add environmental variable: export DELILA_LUT="$HOME/DelilaSorting"
+7. do analysis from selector_files ./run_delila.sh run_nbr verson_nbr_first verson_nbr_last
+
+Enjoy! 
