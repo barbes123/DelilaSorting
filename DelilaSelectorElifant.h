@@ -112,6 +112,9 @@ public :
   std::deque<DelilaEvent>      delilaQu;
   std::deque<DelilaEvent>      delilaPreQu;
   
+  std::map<int,std::deque<DelilaEvent>> waitingQu_gamma; //for CeBr
+  std::map<int,std::deque<DelilaEvent>> waitingQu_bgo; //for CS
+  
   //Part for PHA
   short          fSignal[2000]; // add by saka //RecordLength branch is not read we assume rl = 2000
   
@@ -153,10 +156,12 @@ public :
   TH1F* hSegmentHit;
   TH1F* hDetTypeHit;
 
-  std::map<int, TH1F*> hDelila;
+  std::map<int, TH1F*> hDelila0; //before event_builder
   std::map<int, TH1F*> hDelilaCS;
   std::map<int, TH1F*> hDelilaDC;
   std::map<int, TH1F*> hDelilaCS_DC;
+  
+  std::map<int, TH1F*> hDelila_single; //after event builder
   
   std::map<int, TH1F*> hDelila_long;
   std::map<int, TH1F*> hDelilaCS_long;
@@ -251,7 +256,12 @@ public :
   
   TH1F *hAmax;
   TH2F *mAmaxEnergy;
-  
+
+  int det_def_trg;
+  int channel_trg;
+  double TriggerTimeFlag;
+  double lastDelilaTime;
+
     
   std::clock_t start;
   double duration;
@@ -327,12 +337,7 @@ public :
 
 
    ClassDef(DelilaSelectorElifant,0);
-   
-   
-//   bool has_labr;
-//   bool has_hpge;
-//   bool has_bgo;
-//   bool has_elissa;
+
   
 };
 
@@ -347,16 +352,36 @@ void DelilaSelectorElifant::Init(TTree *tree)
    // code, but the routine can be extended by the user if needed.
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
-    
-    
-
+  
+  if(!tree) {std::cout<<" TTree NOT found "<<std::endl; return;};
+  
+//   std::cout<<" Delila Sorting "<<std::endl;
+  std::cout<<" TTree found "<<std::endl;
+  fChain = tree;
+  fChain->SetMakeClass(1);  
+  fChain->SetBranchAddress("ChargeLong", 	&fEnergyLong,            	   &b_energ);
+  fChain->SetBranchAddress("ChargeShort", 	&fEnergyShort, 	               &b_energ_short);
+  fChain->SetBranchAddress("FineTS", 	    &fTimeStampFS, 	               &b_tstmp_fine);
+  fChain->SetBranchAddress("TimeStamp",     &fTimeStamp,                   &b_tstmp); 
+  fChain->SetBranchAddress("Ch", 	        &fChannel,                     &b_channel);
+  fChain->SetBranchAddress("Mod", 	        &fMod,                         &b_mod);
+  fChain->SetBranchAddress("Signal",        &fSignal,                      &b_signal);// add by saka 
+  
   fReader.SetTree(tree);
        
    
   foutFile->cd();
   outputTree = new TTree("SelectedDelila","SelectedDelila");
   
-   if (has_detector["HPGe"]){
+
+  lastDelilaTime = 0;
+  
+  Read_ELIADE_LookUpTable();
+  Read_TimeAlignment_LookUpTable();
+  
+//   Print_ELIADE_LookUpTable();
+  
+  if (has_detector["HPGe"]){
       HPGeEvent= new std::vector<HPGeTreeEvent>;
       outputTree->Branch("HPGeEvents",&HPGeEvent);
     };
@@ -372,7 +397,22 @@ void DelilaSelectorElifant::Init(TTree *tree)
   };
   
   
+  std::cout<<" === Present detectors === \n";
+  std::cout<<" HPGe   " << has_detector["HPGe"] <<"  \n";
+  std::cout<<" LaBr   " << has_detector["LaBr"] <<"  \n";
+  std::cout<<" ACS    " << has_detector["ACS"] <<"  \n";
+  std::cout<<" Elissa " << has_detector["Elissa "] <<" \n";
+  std::cout<<" === Time settings ps === \n";
+  std::map<UInt_t, Float_t> ::iterator itcc_ = coinc_gates.begin();
+  for (; itcc_ != coinc_gates.end(); ++itcc_) {
+     std::cout<<" coin_id " << itcc_->first <<"  coinc_gate "<< itcc_->second <<" ps \n";
+  }
+  std::cout<<" event_length     " << event_length      <<" ps \n";
+  std::cout<<" pre_event_length " << pre_event_length  <<" ps \n";
+  std::cout<<" ===                            === \n";
   
+  std::cout << "Init() is done \n";
+
   
 //   outputTree->Branch("fTEventTS",&DelilaEventTreated .fTimeStamp,"TimeStamp/l");
 //   outputTree->Branch("fTEventFS",&DelilaEventTreated .fTimeStampFS,"TimeStamp/D");
