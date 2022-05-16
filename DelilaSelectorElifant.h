@@ -401,7 +401,7 @@ void DelilaSelectorElifant::Init(TTree *tree)
   std::cout<<" HPGe   " << has_detector["HPGe"] <<"  \n";
   std::cout<<" LaBr   " << has_detector["LaBr"] <<"  \n";
   std::cout<<" ACS    " << has_detector["ACS"] <<"  \n";
-  std::cout<<" Elissa " << has_detector["Elissa "] <<" \n";
+  std::cout<<" Elissa " << has_detector["Elissa"] <<" \n";
   std::cout<<" === Time settings ps === \n";
   std::map<UInt_t, Float_t> ::iterator itcc_ = coinc_gates.begin();
   for (; itcc_ != coinc_gates.end(); ++itcc_) {
