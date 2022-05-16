@@ -364,6 +364,67 @@ void DelilaSelectorElifant::Begin(TTree * tree)
    // When running with PROOF Begin() is only called on the client.
    // The tree argument is deprecated (on PROOF 0 is passed).
   
+//   detector_name[1]="HPGe";     has_detector[detector_name[1]] = false;
+//   detector_name[2]="SEG";      has_detector[detector_name[2]] = false;
+//   detector_name[3]="LaBr";     has_detector[detector_name[3]] = false;
+//   detector_name[4]="ACS";      has_detector[detector_name[4]] = false;
+//   detector_name[5]="BGOs";     has_detector[detector_name[5]] = false; //side
+//   detector_name[6]="BGOf";     has_detector[detector_name[6]] = false;//front
+//   detector_name[7]="Elissa";   has_detector[detector_name[7]] = false;
+//   detector_name[8]="neutron";  has_detector[detector_name[8]] = false;
+//   detector_name[9]="pulser";   has_detector[detector_name[9]] = false;  
+// 
+//   Read_Confs();
+// 
+//   std::map<UInt_t, Float_t>::iterator it_c_gates_ =  coinc_gates.begin();
+//   for(;it_c_gates_!=coinc_gates.end();++it_c_gates_){
+//        
+//       switch (it_c_gates_->first){
+//            case 11: {
+//                gg_coinc_id[it_c_gates_->first]="mgg_hpge_hpge";
+//                break;
+//          };
+//            case 12: {
+//                gg_coinc_id[it_c_gates_->first]="mgg_core_seg";
+//                break;
+//          };
+//           case 13: {
+//                gg_coinc_id[it_c_gates_->first]="mgg_labr_hpge";
+//                break;
+//          };
+//            case 33: {
+//                gg_coinc_id[it_c_gates_->first]="mgg_labr_labr";
+//                break;
+//          };
+//            case 37: {
+//                gg_coinc_id[it_c_gates_->first]="mgg_labr_elissa";
+//                break;
+//          };
+//          default: {
+// //               gg_coinc_id[it_c_gates_->first]=Form("mgg_not_defined_%i",it_c_gates_->first);
+//                break;
+//          };
+//        };
+//     };
+}
+
+
+
+
+void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
+{
+   // The SlaveBegin() function is called after the Begin() function.
+   // When running with PROOF SlaveBegin() is called on each slave server.
+   // The tree argument is deprecated (on PROOF 0 is passed).
+    
+//    TString option = GetOption();
+//    toks = option.Tokenize(",");
+//    TString RunID = ((TObjString*) toks->At(0))->GetString();
+//   double beta = ((TObjString*) toks->At(2))->GetString().Atof();
+//    beta = ((TObjString*) toks->At(2))->GetString().Atof();
+//    addBackMode = atoi(((TObjString*) toks->At(3))->GetString());
+//    std::cout << "addBackMode  " << addBackMode <<std::endl;
+    
   detector_name[1]="HPGe";     has_detector[detector_name[1]] = false;
   detector_name[2]="SEG";      has_detector[detector_name[2]] = false;
   detector_name[3]="LaBr";     has_detector[detector_name[3]] = false;
@@ -405,25 +466,9 @@ void DelilaSelectorElifant::Begin(TTree * tree)
                break;
          };
        };
-    };
-}
-
-
-
-
-void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
-{
-   // The SlaveBegin() function is called after the Begin() function.
-   // When running with PROOF SlaveBegin() is called on each slave server.
-   // The tree argument is deprecated (on PROOF 0 is passed).
+    }; 
     
-//    TString option = GetOption();
-//    toks = option.Tokenize(",");
-//    TString RunID = ((TObjString*) toks->At(0))->GetString();
-//   double beta = ((TObjString*) toks->At(2))->GetString().Atof();
-//    beta = ((TObjString*) toks->At(2))->GetString().Atof();
-//    addBackMode = atoi(((TObjString*) toks->At(3))->GetString());
-//    std::cout << "addBackMode  " << addBackMode <<std::endl;
+    
    
    
    TString option = GetOption();
