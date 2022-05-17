@@ -223,6 +223,9 @@ public :
   
   std::map<int, std::string> domain_list;
   std::map<int, TH2F*> mEnergy_time_diff;
+   
+  std::map<int, TH2F*> mAmaxEnergyDom;
+
   
   TH2F* mTimeDiffCS;
   

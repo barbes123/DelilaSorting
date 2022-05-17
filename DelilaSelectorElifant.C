@@ -550,16 +550,32 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    mGammaGammaCS_DC->GetYaxis()->SetTitle("keV");
    fOutput->Add(mGammaGammaCS_DC);
    
-   hAmax = new TH1F("hAmax", "hAmax", 2e4,0,2e4);
-   hAmax->GetXaxis()->SetTitle("rise time (Amax)");
-   hAmax->GetYaxis()->SetTitle("counts");
-   fOutput->Add(hAmax);
    
-   mAmaxEnergy = new TH2F("mAmaxEnergy", "mAmaxEnergy", 4096,0, 16384, 2e4,0,2e4);
-   mAmaxEnergy->GetXaxis()->SetTitle("Energy, keV");
-   mAmaxEnergy->GetYaxis()->SetTitle("rise time (Amax)");
-   fOutput->Add(mAmaxEnergy);
-  
+   
+   
+   if (has_detector["Elissa"]){
+       
+        std::map<int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
+        for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
+            if (LUT_DELILA[it_lut_->first].detType == 7){
+                int dom = LUT_DELILA[it_lut_->first].dom;
+                mAmaxEnergyDom[dom] = new TH2F(Form("mAmaxEnergy_dom%i",dom), Form("mAmaxEnergy_dom%i",dom), 4096,0, 16384, 2e4,0,2e4);
+                mAmaxEnergyDom[dom] ->GetXaxis()->SetTitle("Energy, a.u.");
+                mAmaxEnergyDom[dom] ->GetYaxis()->SetTitle("rise time (Amax)");
+                fOutput->Add(mAmaxEnergyDom[dom]); 
+            };
+        };
+    
+        hAmax = new TH1F("hAmax", "hAmax", 2e4,0,2e4);
+        hAmax->GetXaxis()->SetTitle("rise time (Amax)");
+        hAmax->GetYaxis()->SetTitle("counts");
+        fOutput->Add(hAmax);
+        
+        mAmaxEnergy = new TH2F("mAmaxEnergy", "mAmaxEnergy", 4096,0, 16384, 2e4,0,2e4);
+        mAmaxEnergy->GetXaxis()->SetTitle("Energy, a.u.");
+        mAmaxEnergy->GetYaxis()->SetTitle("rise time (Amax)");
+        fOutput->Add(mAmaxEnergy);
+   };
 //   std::map<UInt_t, Float_t>::iterator it_c_gates_ =  coinc_gates.begin();
 
 //   for(;it_c_gates_!=coinc_gates.end();++it_c_gates_){
@@ -1279,7 +1295,9 @@ void DelilaSelectorElifant::Terminate()
       foutFile->mkdir("GammaGamma","GammaGamma");
       foutFile->mkdir("long","long");
       foutFile->mkdir("Energy_time_diff","Energy_time_diff");
-
+      
+      if (has_detector["Elissa"]) foutFile->mkdir("AmaxEnergy","AmaxEnergy");
+      
       outputTree->Write();
       
        while ((obj = iter())) {
@@ -1290,7 +1308,9 @@ void DelilaSelectorElifant::Terminate()
            foutFile->cd(Form("%s:/", OutputFile.str().c_str()));
            }else if(name.Contains("mEnergy_time_diff")){
                foutFile->cd(Form("%s:/Energy_time_diff", OutputFile.str().c_str()));      
-           }else if (name.Contains("mgg_")){
+           }else if((name.Contains("mAmaxEnergy_dom")) && (has_detector["Elissa"]) ){
+               foutFile->cd(Form("%s:/AmaxEnergy", OutputFile.str().c_str()));      
+           } else if (name.Contains("mgg_")){
              foutFile->cd(Form("%s:/GammaGamma", OutputFile.str().c_str()));      
 //              std::cout<<Form("%s:/GammaGamma", OutputFile.str().c_str())<<std::endl;
             }else if (name.Contains("long")){
