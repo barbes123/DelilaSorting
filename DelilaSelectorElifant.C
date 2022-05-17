@@ -559,6 +559,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
         for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
             if (LUT_DELILA[it_lut_->first].detType == 7){
                 int dom = LUT_DELILA[it_lut_->first].dom;
+                std::cout<<"dom "<<dom<<"\n";
                 mAmaxEnergyDom[dom] = new TH2F(Form("mAmaxEnergy_dom%i",dom), Form("mAmaxEnergy_dom%i",dom), 4096,0, 16384, 2e4,0,2e4);
                 mAmaxEnergyDom[dom] ->GetXaxis()->SetTitle("Energy, a.u.");
                 mAmaxEnergyDom[dom] ->GetYaxis()->SetTitle("rise time (Amax)");
