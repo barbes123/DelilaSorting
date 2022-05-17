@@ -557,13 +557,11 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    
    
    if (has_detector["Elissa"]){
-                       std::cout<<"has elissa \n";
-
         std::map<int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
         for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
             if (LUT_DELILA[it_lut_->first].detType == 7){
                 int dom = LUT_DELILA[it_lut_->first].dom;
-                std::cout<<"dom "<<dom<<"\n";
+//                 std::cout<<"dom "<<dom<<"\n";
                 mAmaxEnergyDom[dom] = new TH2F(Form("mAmaxEnergy_dom%i",dom), Form("mAmaxEnergy_dom%i",dom), 4096,0, 16384, 2e4,0,2e4);
                 mAmaxEnergyDom[dom] ->GetXaxis()->SetTitle("Energy, a.u.");
                 mAmaxEnergyDom[dom] ->GetYaxis()->SetTitle("rise time (Amax)");
@@ -576,7 +574,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
         hAmax->GetYaxis()->SetTitle("counts");
         fOutput->Add(hAmax);
         
-        mAmaxEnergy = new TH2F("mAmaxEnergy", "mAmaxEnergy", 4096,0, 16384, 2e4,0,2e4);
+        mAmaxEnergy = new TH2F("mAmaxEnergy", "mAmaxEnergy", 2048,0, 16384, 2e2,0,2e4);
         mAmaxEnergy->GetXaxis()->SetTitle("Energy, a.u.");
         mAmaxEnergy->GetYaxis()->SetTitle("rise time (Amax)");
         fOutput->Add(mAmaxEnergy);
