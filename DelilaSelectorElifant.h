@@ -414,7 +414,7 @@ void DelilaSelectorElifant::Init(TTree *tree)
   std::cout<<" pre_event_length " << pre_event_length  <<" ps \n";
   std::cout<<" ===                            === \n";
   
-  std::cout << "Init() is done \n";
+  if (debug)  std::cout << "Init() is done \n";
 
   
 //   outputTree->Branch("fTEventTS",&DelilaEventTreated .fTimeStamp,"TimeStamp/l");
