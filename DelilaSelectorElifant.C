@@ -554,7 +554,8 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    
    
    if (has_detector["Elissa"]){
-       
+                       std::cout<<"has elissa \n";
+
         std::map<int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
         for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
             if (LUT_DELILA[it_lut_->first].detType == 7){
