@@ -47,6 +47,7 @@ bool blIsTrigger            = false; //the trigger is open
 bool blIsWindow             = false; //the trigger is open
 bool blFirstTrigger         = false;
 bool blAddTriggerToQueue    = false;
+bool blFillAmaxEnergyDom    = true;
 
 bool debug            = false;
 bool blDebugElissa    = false;
@@ -558,14 +559,17 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    
    if (has_detector["Elissa"]){
         std::map<int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
-        for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
-            if (LUT_DELILA[it_lut_->first].detType == 7){
-                int dom = LUT_DELILA[it_lut_->first].dom;
-//                 std::cout<<"dom "<<dom<<"\n";
-                mAmaxEnergyDom[dom] = new TH2F(Form("mAmaxEnergy_dom%i",dom), Form("mAmaxEnergy_dom%i",dom), 4096,0, 16384, 2e4,0,2e4);
-                mAmaxEnergyDom[dom] ->GetXaxis()->SetTitle("Energy, a.u.");
-                mAmaxEnergyDom[dom] ->GetYaxis()->SetTitle("rise time (Amax)");
-                fOutput->Add(mAmaxEnergyDom[dom]); 
+        
+        if (blFillAmaxEnergyDom){
+            for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
+                if (LUT_DELILA[it_lut_->first].detType == 7){
+                    int dom = LUT_DELILA[it_lut_->first].dom;
+    //                 std::cout<<"dom "<<dom<<"\n";
+                    mAmaxEnergyDom[dom] = new TH2F(Form("mAmaxEnergy_dom%i",dom), Form("mAmaxEnergy_dom%i",dom), 4096,0, 16384, 2e4,0,2e4);
+                    mAmaxEnergyDom[dom] ->GetXaxis()->SetTitle("Energy, a.u.");
+                    mAmaxEnergyDom[dom] ->GetYaxis()->SetTitle("rise time (Amax)");
+                    fOutput->Add(mAmaxEnergyDom[dom]); 
+                };
             };
         };
     
@@ -1563,7 +1567,7 @@ void DelilaSelectorElifant::TreatElissaSingle()
     
     hAmax->Fill(DelilaEvent_.Amax);
     mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
-    mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
+    if (blFillAmaxEnergyDom) mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     
     if (blDebugElissa) cout << trap_max << " " << trap_min <<" Amax "<<DelilaEvent_.Amax<< endl;   
     
