@@ -37,7 +37,7 @@ using namespace std;
 
 ////////////////////////////////Please, modify if needed////////////////////////////////////////////
 bool blGammaGamma       = true;
-bool blCS               = true;
+bool blCS               = false;
 bool blOutTree          = true;
 bool blFold             = false;
 bool blTimeAlignement   = true;
@@ -299,7 +299,7 @@ void DelilaSelectorElifant::Read_Confs() {
               //LUT_CONF[coinc_id] = value;
               coinc_gates[coinc_id] = value;
               //std::cout<<coinc_name<<" coin_id " << coinc_id <<" value "<<value <<" ps \n";
-              std::cout<<coinc_name<<" coin_id " << coinc_id <<"  coinc_gates[coinc_id] "<< coinc_gates[coinc_id] <<" ps \n";
+//               std::cout<<coinc_name<<" coin_id " << coinc_id <<"  coinc_gates[coinc_id] "<< coinc_gates[coinc_id] <<" ps \n";
               break;
           };
       };
@@ -1077,8 +1077,8 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     
   if (debug){std::cout<<"I did TreatDelilaEvent_() \n";}
   
-//    EventBuilderSimple();
-   EventBuilderPreTrigger();
+//   if (trg_det_type != -1) 
+  EventBuilderPreTrigger();
   
 
   if ((entry) % int(nb_entries / 100) == 0 || (entry) % 100000 == 0) {
@@ -1395,7 +1395,7 @@ void DelilaSelectorElifant::cs()
                 time_diff_bgo =  (*it_ev__).Time - last_bgo_time[cs_dom];// GetCoincTimeCorrection(it_ev__->domain,
 //                  time_diff_bgo =  (*it_ev__).Time - last_bgo_time[cs_dom] - LUT_DELILA[it_ev__->channel].bgo_time_offset ;// GetCoincTimeCorrection(it_ev__->domain,
                  mTimeDiffCS ->Fill(cs_dom, time_diff_bgo);
-                 std::cout<<" coinc_gates "<<det<<" "<< coinc_gates[det*10+5] <<" "<<time_diff_bgo << " \n";
+//                  std::cout<<" coinc_gates "<<det<<" "<< coinc_gates[det*10+5] <<" "<<time_diff_bgo << " \n";
                  if (abs(time_diff_bgo) < coinc_gates[det*10+5]) //10000)
                  {
                     (*it_ev__).CS = 1;  std::cout<<" here cs \n";
