@@ -42,7 +42,6 @@ bool blOutTree          = true;
 bool blFold             = false;
 bool blTimeAlignement   = true;
 ////////////////////////////////Please, DO NOT modify ////////////////////////////////////////////
-// int addBackMode = 0; //0 - no addback; 1- addback;//not in use for ELIFANT
 bool blIsTrigger            = false; //the trigger is open
 bool blIsWindow             = false; //the trigger is open
 bool blFirstTrigger         = false;
@@ -1034,10 +1033,10 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     DelilaEvent_.theta= LUT_DELILA[daq_ch].theta;
     DelilaEvent_.phi= LUT_DELILA[daq_ch].phi;
     
-    mDelila_raw->Fill(domain,DelilaEvent_.fEnergy);
+    
     hDomainHit->Fill(domain);
     hDetTypeHit->Fill(DelilaEvent_.det_def);   
-    hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
+    mDelila_raw->Fill(domain,DelilaEvent_.fEnergy);
     
     if (debug){std::cout<<"I am doing new entry l.1072, ch:"<< daq_ch << "\n";}
 
@@ -1062,12 +1061,14 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
      if (DelilaEvent_.det_def == 9){//pulser
         CheckPulserAllignement(90);
         return kTRUE;
+     }else if (DelilaEvent_.det_def == 98){
+        return kTRUE;
      }else if (DelilaEvent_.det_def == 8){
           TreatNeutronSingle();
      }else if ((DelilaEvent_.det_def == 7) && has_detector["Elissa"]){
          TreatElissaSingle();
      }else if (((DelilaEvent_.det_def==4)||(DelilaEvent_.det_def==5)||(DelilaEvent_.det_def==6))&&has_detector["BGO"]){
-         
+         TreatBGOSingle();
      }else if ((DelilaEvent_.det_def == 3) && has_detector["LaBr"]) {
         TreatLaBrSingle();
      }else if ((DelilaEvent_.det_def == 1) && has_detector["HPGe"] ){
@@ -1531,6 +1532,7 @@ void DelilaSelectorElifant::TreatLaBrSingle()
     double costheta = TMath::Cos(LUT_DELILA[daq_ch].theta);
     if (beta >0) DelilaEvent_.EnergyDC = DelilaEvent_.Energy_kev*(1./sqrt(1 - beta*beta) * (1 - beta*costheta));
     
+    hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
     mDelila->Fill(domain,DelilaEvent_.Energy_kev);
     mDelilaDC->Fill(domain,DelilaEvent_.EnergyDC);
 
@@ -1547,6 +1549,7 @@ void DelilaSelectorElifant::TreatHpGeSingle()
     
     mDelila->Fill(domain,DelilaEvent_.Energy_kev);
     mDelilaDC->Fill(domain,DelilaEvent_.EnergyDC);
+    hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
      
 }
 
@@ -1556,6 +1559,7 @@ void DelilaSelectorElifant::TreatNeutronSingle()
     mShortLong->Fill(DelilaEvent_.fEnergy, DelilaEvent_.fEnergyShort);
 //     std::cout<<DelilaEvent_.det_def<<" "<<" Long "<<DelilaEvent_.fEnergy<<" short "<< DelilaEvent_.fEnergyShort <<" n/g "<<(DelilaEvent_.fEnergy - DelilaEvent_.fEnergyShort)*1.0/DelilaEvent_.fEnergy<<"\n";
     mNeutron->Fill(DelilaEvent_.fEnergy*1.0, ((DelilaEvent_.fEnergy*1.0 - DelilaEvent_.fEnergyShort*1.0)/DelilaEvent_.fEnergy*1.0));
+    hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
 }
 
 void DelilaSelectorElifant::TreatElissaSingle()
@@ -1567,6 +1571,8 @@ void DelilaSelectorElifant::TreatElissaSingle()
     
     hAmax->Fill(DelilaEvent_.Amax);
     mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
+    hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
+    
     if (blFillAmaxEnergyDom) mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     
     if (blDebugElissa) cout << trap_max << " " << trap_min <<" Amax "<<DelilaEvent_.Amax<< endl;   
@@ -1819,6 +1825,12 @@ std::vector<float> DelilaSelectorElifant::trapezoidal(short wave[],int length, i
 
 }
 // add by saka
+
+void DelilaSelectorElifant::TreatBGOSingle()
+{
+    hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev);
+}
+
 
 
 
