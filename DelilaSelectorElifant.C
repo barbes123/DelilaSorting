@@ -46,7 +46,7 @@ bool blIsTrigger            = false; //the trigger is open
 bool blIsWindow             = false; //the trigger is open
 bool blFirstTrigger         = false;
 bool blAddTriggerToQueue    = false;
-bool blFillAmaxEnergyDom    = true;
+bool blFillAmaxEnergyDom    = false;
 
 bool debug            = false;
 bool blDebugElissa    = false;
@@ -1077,7 +1077,6 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     
   if (debug){std::cout<<"I did TreatDelilaEvent_() \n";}
   
-//   if (trg_det_type != -1) 
   EventBuilderPreTrigger();
   
 
