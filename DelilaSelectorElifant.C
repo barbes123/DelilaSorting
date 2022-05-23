@@ -46,7 +46,7 @@ bool blIsTrigger            = false; //the trigger is open
 bool blIsWindow             = false; //the trigger is open
 bool blFirstTrigger         = false;
 bool blAddTriggerToQueue    = false;
-bool blFillAmaxEnergyDom    = false;
+bool blFillAmaxEnergyDom    = true;
 
 bool debug            = false;
 bool blDebugElissa    = false;
