@@ -482,6 +482,13 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    mDelila->GetYaxis()->SetTitle("keV");
    fOutput->Add(mDelila);
    
+   
+   mElissa = new TH2F("mElissa", "mElissa", max_domain, 0, max_domain, 4096, -0.5, 32770);
+   mElissa->GetXaxis()->SetTitle("domain");
+   mElissa->GetYaxis()->SetTitle("keV");
+   fOutput->Add(mElissa);
+   
+   
    mDelilaDC = new TH2F("mDelilaDC", "mDelilaDC", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
    mDelilaDC->GetXaxis()->SetTitle("domain");
    mDelilaDC->GetYaxis()->SetTitle("keV");
@@ -1572,7 +1579,7 @@ void DelilaSelectorElifant::TreatElissaSingle()
 //     hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
     mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
-    mDelila->Fill(DelilaEvent_.domain, DelilaEvent_.Energy_kev);
+    mElissa->Fill(DelilaEvent_.domain, DelilaEvent_.Energy_kev);
 
     
     if (blFillAmaxEnergyDom) mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
