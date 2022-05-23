@@ -485,12 +485,12 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    fOutput->Add(mDelila);
    
    
-   if (has_detector["Elissa"]){
-    mElissa = new TH2F("mElissa", "mElissa", max_domain, 0, max_domain, 4096, -0.5, 32770);
-    mElissa->GetXaxis()->SetTitle("domain");
-    mElissa->GetYaxis()->SetTitle("keV");
-    fOutput->Add(mElissa);
-   };
+//    if (has_detector["Elissa"]){
+//     mElissa = new TH2F("mElissa", "mElissa", max_domain, 0, max_domain, 4096, -0.5, 32770);
+//     mElissa->GetXaxis()->SetTitle("domain");
+//     mElissa->GetYaxis()->SetTitle("keV");
+//     fOutput->Add(mElissa);
+//    };
    
    
    mDelilaDC = new TH2F("mDelilaDC", "mDelilaDC", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
@@ -568,7 +568,8 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    
    
    if (has_detector["Elissa"]){
-        std::map<int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
+
+       std::map<int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
         
         if (blFillAmaxEnergyDom){
             for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
@@ -592,38 +593,14 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
         mAmaxEnergy->GetXaxis()->SetTitle("Energy, a.u.");
         mAmaxEnergy->GetYaxis()->SetTitle("rise time (Amax)");
         fOutput->Add(mAmaxEnergy);
+        
+          
+        mElissa = new TH2F("mElissa", "mElissa", max_domain, 0, max_domain, 4096, -0.5, 32770);
+        mElissa->GetXaxis()->SetTitle("domain");
+        mElissa->GetYaxis()->SetTitle("keV");
+        fOutput->Add(mElissa);
+       
    };
-//   std::map<UInt_t, Float_t>::iterator it_c_gates_ =  coinc_gates.begin();
-
-//   for(;it_c_gates_!=coinc_gates.end();++it_c_gates_){
-//       
-//       switch (it_c_gates_->first){
-//           case 11: {
-//               gg_coinc_id[it_c_gates_->first]="mgg_hpge_hpge";
-//               break;
-//         };
-//           case 12: {
-//               gg_coinc_id[it_c_gates_->first]="mgg_core_seg";
-//               break;
-//         };
-//          case 13: {
-//               gg_coinc_id[it_c_gates_->first]="mgg_labr_hpge";
-//               break;
-//         };
-//           case 33: {
-//               gg_coinc_id[it_c_gates_->first]="mgg_labr_labr";
-//               break;
-//         };
-//           case 37: {
-//               gg_coinc_id[it_c_gates_->first]="mgg_labr_elissa";
-//               break;
-//         };
-//         default: {
-// //               gg_coinc_id[it_c_gates_->first]=Form("mgg_not_defined_%i",it_c_gates_->first);
-//               break;
-//         };
-//       }
-//   }
    
 
    std::map<UInt_t,std::string>::iterator itna =  gg_coinc_id.begin();
@@ -746,7 +723,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
   for(;itna1!=detector_name.end();++itna1){
       
       
-      if ((itna1->first == 7)&& has_detector["Elissa"]){
+      if ((itna1->first == 7) && has_detector["Elissa"]){
         hDelila0[itna1->first] = new TH1F(Form("%s",itna1->second.c_str()), Form("%s before EventB",itna1->second.c_str()), 4096, -0.5, 16383.5);
         hDelila0[itna1->first]->GetYaxis()->SetTitle("counts");
         hDelila0[itna1->first]->GetXaxis()->SetTitle("keV");
@@ -756,6 +733,11 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
         hDelila_single[itna1->first]->GetYaxis()->SetTitle("counts");
         hDelila_single[itna1->first]->GetXaxis()->SetTitle("keV");
         fOutput->Add(hDelila_single[itna1->first]);
+        
+        hLaBrElissa = new TH1F("hLaBrElissa","hLaBrElissa", 4096, -0.5, 16383.5);
+        hLaBrElissa->GetYaxis()->SetTitle("counts");
+        hLaBrElissa->GetXaxis()->SetTitle("keV");
+        fOutput->Add(hLaBrElissa);
         
       } else {
       
