@@ -37,14 +37,14 @@ using namespace std;
 
 ////////////////////////////////Please, modify if needed////////////////////////////////////////////
 bool blGammaGamma           = true;
-bool blCS                   = false;
+bool blCS                   = true;
 bool blOutTree              = false;
 bool blFold                 = false;
 bool blTimeAlignement       = true;
 bool blFillAmaxEnergyDom    = true;
 ////////////////////////////////Please, DO NOT modify ////////////////////////////////////////////
-bool blIsTrigger            = false; //the trigger is open
-bool blIsWindow             = false; //the trigger is open
+bool blIsTrigger            = false; //the SimpleTrigger is open
+bool blIsWindow             = false; //the preTrigger is open
 bool blFirstTrigger         = false;
 bool blAddTriggerToQueue    = false;
 
@@ -1265,15 +1265,13 @@ void DelilaSelectorElifant::TreatGammaGammaCoinc()
             };
             double_t time_diff_gg = it_dom2_->Time - it_dom1_->Time;
             
-//             std::cout<<" herreee 3 "<< coinc_id<<" ttt "<< ttt<<" TriggerTimeFlag "<<TriggerTimeFlag << " "<< time_diff_gg  <<" \n" ;
-//             ttt=ttt+1;
-
             mGG_time_diff[coinc_id]->Fill(it_dom2_->domain,time_diff_gg);
             hCoincID->Fill(coinc_id);
                double_t delta_theta = it1_->theta - it2_->theta;
             if (abs(time_diff_gg) < coinc_gates[coinc_id]){
                   mGG[coinc_id]->Fill(it_dom1_->Energy_kev, it_dom2_->Energy_kev);
                   nmult[coinc_id]++;
+                  if (coinc_id == 37) it_dom1_->coincID = 7;
               };
         };
 //                     std::cout<<"line 1268 \n";
@@ -1281,6 +1279,15 @@ void DelilaSelectorElifant::TreatGammaGammaCoinc()
         
    it_mult_ =  gg_coinc_id.begin();
    for(;it_mult_!=gg_coinc_id.end();++it_mult_) hMult[it_mult_->first]->Fill(nmult[it_mult_->first]);   
+   
+   
+    if (has_detector["Elissa"]){ 
+        it1_= delilaQu.begin();
+        for (; it1_!= delilaQu.end();++it1_){ 
+           if (it1_->coincID == 7) hLaBrElissa->Fill(it1_->Energy_kev); 
+        }
+    };
+   
 };
 
 
@@ -1698,6 +1705,7 @@ void DelilaSelectorElifant::EventBuilderSimple()
             if (TriggerDecision()) SetUpNewTrigger();          
             
         }else{
+            hDelila_single[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev);
             DelilaEvent_.trg = trigger_cnt;
             delilaQu.push_back(DelilaEvent_);
         };

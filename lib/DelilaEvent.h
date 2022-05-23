@@ -30,7 +30,8 @@
 //     UShort_t        bunch;
 //     double          TimeBunch;
     UShort_t        fold;    
-    DelilaEvent(): domain(-1),channel(-1),fEnergy(-1),CS(0),cs_domain(0),Time(0),trg(0),Amax(0){};
+    UShort_t        coincID;
+    DelilaEvent(): domain(-1),channel(-1),fEnergy(-1),CS(0),cs_domain(0),Time(0),trg(0),Amax(0),coincID(0){};
  };
 
 

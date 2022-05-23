@@ -157,11 +157,14 @@ public :
   TH1F* hDetTypeHit;
 
   std::map<int, TH1F*> hDelila0; //before event_builder
+  std::map<int, TH1F*> hDelila_single; //after event builder
+
   std::map<int, TH1F*> hDelilaCS;
   std::map<int, TH1F*> hDelilaDC;
   std::map<int, TH1F*> hDelilaCS_DC;
   
-  std::map<int, TH1F*> hDelila_single; //after event builder
+  TH1F* hLaBrElissa;
+  
   
   std::map<int, TH1F*> hDelila_long;
   std::map<int, TH1F*> hDelilaCS_long;
