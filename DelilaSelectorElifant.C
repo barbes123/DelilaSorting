@@ -1032,7 +1032,6 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
 //     if (debug){std::cout<<"I am doing entry here, ch:"<< daq_ch << "\n";}
     
     DelilaEvent_.fEnergy = fEnergyLong;
-    DelilaEvent_.Energy_kev = CalibDet(DelilaEvent_.fEnergy, daq_ch);
     
     if ((DelilaEvent_.Energy_kev < LUT_DELILA[daq_ch].threshold)&&(DelilaEvent_.det_def < 9)) return kTRUE;
     
@@ -1535,6 +1534,9 @@ void DelilaSelectorElifant::TreatLaBrSingle()
     UShort_t daq_ch = DelilaEvent_.channel;
     UShort_t domain = DelilaEvent_.domain;
     
+    DelilaEvent_.Energy_kev = CalibDet(DelilaEvent_.fEnergy, daq_ch);
+
+    
     double costheta = TMath::Cos(LUT_DELILA[daq_ch].theta);
     if (beta >0) DelilaEvent_.EnergyDC = DelilaEvent_.Energy_kev*(1./sqrt(1 - beta*beta) * (1 - beta*costheta));
     
@@ -1550,6 +1552,8 @@ void DelilaSelectorElifant::TreatHpGeSingle()
     UShort_t daq_ch = DelilaEvent_.channel;
     UShort_t domain = DelilaEvent_.domain;
     
+    DelilaEvent_.Energy_kev = CalibDet(DelilaEvent_.fEnergy, daq_ch);
+
     double costheta = TMath::Cos(LUT_DELILA[daq_ch].theta);
     if (beta >0) DelilaEvent_.EnergyDC = DelilaEvent_.Energy_kev*(1./sqrt(1 - beta*beta) * (1 - beta*costheta));
     
@@ -1574,6 +1578,9 @@ void DelilaSelectorElifant::TreatElissaSingle()
     float trap_max=*max_element(data_fil.begin(),data_fil.end());
     float trap_min=*min_element(data_fil.begin(),data_fil.end());
     DelilaEvent_.Amax=trap_max-trap_min;
+    
+    DelilaEvent_.Energy_kev = CalibDet(DelilaEvent_.fEnergy, daq_ch);
+
     
     hAmax->Fill(DelilaEvent_.Amax);
 //     hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
