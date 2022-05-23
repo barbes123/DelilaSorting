@@ -1511,9 +1511,11 @@ void DelilaSelectorElifant::PrintDelilaEvent(DelilaEvent &ev_)
 
 bool DelilaSelectorElifant::TriggerDecision()
 {
+     std::cout<<" det_def_trg "<< det_def_trg <<" domain "<<DelilaEvent_.domain  " \n";
+
    if (det_def_trg == -1) return false;
    if (channel_trg == -1) return false; 
-  std::cout<<" det_def_trg "<< det_def_trg <<" domain "<<DelilaEvent_.domain  " \n";
+//   std::cout<<" det_def_trg "<< det_def_trg <<" domain "<<DelilaEvent_.domain  " \n";
    if (det_def_trg > 0) return (DelilaEvent_.det_def == det_def_trg/1);
    
    return (DelilaEvent_.domain == channel_trg/1);
