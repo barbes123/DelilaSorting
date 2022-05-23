@@ -36,17 +36,17 @@ using namespace std;
 
 
 ////////////////////////////////Please, modify if needed////////////////////////////////////////////
-bool blGammaGamma       = true;
-bool blCS               = false;
-bool blOutTree          = false;
-bool blFold             = false;
-bool blTimeAlignement   = true;
+bool blGammaGamma           = true;
+bool blCS                   = false;
+bool blOutTree              = false;
+bool blFold                 = false;
+bool blTimeAlignement       = true;
+bool blFillAmaxEnergyDom    = true;
 ////////////////////////////////Please, DO NOT modify ////////////////////////////////////////////
 bool blIsTrigger            = false; //the trigger is open
 bool blIsWindow             = false; //the trigger is open
 bool blFirstTrigger         = false;
 bool blAddTriggerToQueue    = false;
-bool blFillAmaxEnergyDom    = false;
 
 bool debug            = false;
 bool blDebugElissa    = false;
