@@ -327,7 +327,7 @@ void DelilaSelectorElifant::Print_TimeAlignment_LookUpTable()
     std::map<int, int > ::iterator it__ = LUT_TA.begin();
     for (; it__ != LUT_TA.end(); ++it__) {
      // is >> curDet.ch >> curDet.dom >> theta >> phi >> curDet.TimeOffset >> curDet.threshold;
-	std::cout<<" coinc_id "<<it__->first<<" time_corr "<< it__->second<<std::endl;
+	std::cout<<" domain "<<it__->first<<" time_corr "<< it__->second<<std::endl;
     }
 };
 
@@ -575,7 +575,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
                 if (LUT_DELILA[it_lut_->first].detType == 7){
                     int dom = LUT_DELILA[it_lut_->first].dom;
     //                 std::cout<<"dom "<<dom<<"\n";
-                    mAmaxEnergyDom[dom] = new TH2F(Form("mAmaxEnergy_dom%i",dom), Form("mAmaxEnergy_dom%i",dom), 4096,0, 32768, 10e4,0,10e4);
+                    mAmaxEnergyDom[dom] = new TH2F(Form("mAmaxEnergy_dom%i",dom), Form("mAmaxEnergy_dom%i",dom), 4096,0, 32768, 10e2,0,10e4);
                     mAmaxEnergyDom[dom] ->GetXaxis()->SetTitle("Energy, a.u.");
                     mAmaxEnergyDom[dom] ->GetYaxis()->SetTitle("rise time (Amax)");
                     fOutput->Add(mAmaxEnergyDom[dom]); 
