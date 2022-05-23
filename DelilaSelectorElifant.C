@@ -724,12 +724,12 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
       
       
       if ((itna1->first == 7) && has_detector["Elissa"]){
-        hDelila0[itna1->first] = new TH1F(Form("%s",itna1->second.c_str()), Form("%s before EventB",itna1->second.c_str()), 4096, -0.5, 16383.5);
+        hDelila0[itna1->first] = new TH1F(Form("%s",itna1->second.c_str()), Form("%s before EventB",itna1->second.c_str()), 4096, -0.5, 32767.5);
         hDelila0[itna1->first]->GetYaxis()->SetTitle("counts");
         hDelila0[itna1->first]->GetXaxis()->SetTitle("keV");
         fOutput->Add(hDelila0[itna1->first]);
         
-        hDelila_single[itna1->first] = new TH1F(Form("%s_single",itna1->second.c_str()), Form("%s_single",itna1->second.c_str()), 4096, -0.5, 16383.5);
+        hDelila_single[itna1->first] = new TH1F(Form("%s_single",itna1->second.c_str()), Form("%s_single",itna1->second.c_str()), 4096, -0.5, 32767.5);
         hDelila_single[itna1->first]->GetYaxis()->SetTitle("counts");
         hDelila_single[itna1->first]->GetXaxis()->SetTitle("keV");
         fOutput->Add(hDelila_single[itna1->first]);
