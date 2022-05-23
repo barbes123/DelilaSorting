@@ -572,12 +572,12 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
             };
         };
     
-        hAmax = new TH1F("hAmax", "hAmax", 2e4,0,2e4);
+        hAmax = new TH1F("hAmax", "hAmax", 10e4,0,10e4);
         hAmax->GetXaxis()->SetTitle("rise time (Amax)");
         hAmax->GetYaxis()->SetTitle("counts");
         fOutput->Add(hAmax);
         
-        mAmaxEnergy = new TH2F("mAmaxEnergy", "mAmaxEnergy", 2048,0, 16384, 2e2,0,2e4);
+        mAmaxEnergy = new TH2F("mAmaxEnergy", "mAmaxEnergy", 2048,0, 16384, 10e2,0,10e4);
         mAmaxEnergy->GetXaxis()->SetTitle("Energy, a.u.");
         mAmaxEnergy->GetYaxis()->SetTitle("rise time (Amax)");
         fOutput->Add(mAmaxEnergy);
@@ -1568,8 +1568,8 @@ void DelilaSelectorElifant::TreatElissaSingle()
     float trap_min=*min_element(data_fil.begin(),data_fil.end());
     DelilaEvent_.Amax=trap_max-trap_min;
     
-    //hAmax->Fill(DelilaEvent_.Amax);
-    hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
+    hAmax->Fill(DelilaEvent_.Amax);
+//     hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
     mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
     mDelila->Fill(DelilaEvent_.domain, DelilaEvent_.Energy_kev);
