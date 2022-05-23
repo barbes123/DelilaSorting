@@ -1579,7 +1579,7 @@ void DelilaSelectorElifant::TreatElissaSingle()
     float trap_min=*min_element(data_fil.begin(),data_fil.end());
     DelilaEvent_.Amax=trap_max-trap_min;
     
-    DelilaEvent_.Energy_kev = CalibDet(DelilaEvent_.fEnergy, daq_ch);
+    DelilaEvent_.Energy_kev = CalibDet(DelilaEvent_.fEnergy, DelilaEvent_.channel);
 
     
     hAmax->Fill(DelilaEvent_.Amax);
