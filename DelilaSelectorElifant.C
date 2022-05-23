@@ -46,7 +46,7 @@ bool blIsTrigger            = false; //the trigger is open
 bool blIsWindow             = false; //the trigger is open
 bool blFirstTrigger         = false;
 bool blAddTriggerToQueue    = false;
-bool blFillAmaxEnergyDom    = true;
+bool blFillAmaxEnergyDom    = false;
 
 bool debug            = false;
 bool blDebugElissa    = false;
@@ -1568,7 +1568,8 @@ void DelilaSelectorElifant::TreatElissaSingle()
     float trap_min=*min_element(data_fil.begin(),data_fil.end());
     DelilaEvent_.Amax=trap_max-trap_min;
     
-    hAmax->Fill(DelilaEvent_.Amax);
+    //hAmax->Fill(DelilaEvent_.Amax);
+    hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
     mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
     mDelila->Fill(DelilaEvent_.domain, DelilaEvent_.Energy_kev);
