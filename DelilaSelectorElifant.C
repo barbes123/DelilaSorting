@@ -575,7 +575,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
                 if (LUT_DELILA[it_lut_->first].detType == 7){
                     int dom = LUT_DELILA[it_lut_->first].dom;
     //                 std::cout<<"dom "<<dom<<"\n";
-                    mAmaxEnergyDom[dom] = new TH2F(Form("mAmaxEnergy_dom%i",dom), Form("mAmaxEnergy_dom%i",dom), 4096,0, 32768, 2e4,0,2e4);
+                    mAmaxEnergyDom[dom] = new TH2F(Form("mAmaxEnergy_dom%i",dom), Form("mAmaxEnergy_dom%i",dom), 4096,0, 32768, 10e4,0,10e4);
                     mAmaxEnergyDom[dom] ->GetXaxis()->SetTitle("Energy, a.u.");
                     mAmaxEnergyDom[dom] ->GetYaxis()->SetTitle("rise time (Amax)");
                     fOutput->Add(mAmaxEnergyDom[dom]); 
@@ -744,32 +744,46 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
   std::map<UInt_t,std::string>::iterator itna1 =  detector_name.begin();
 
   for(;itna1!=detector_name.end();++itna1){
-   hDelila0[itna1->first] = new TH1F(Form("%s",itna1->second.c_str()), Form("%s before EventB",itna1->second.c_str()), 4096, -0.5, 16383.5);
-   hDelila0[itna1->first]->GetYaxis()->SetTitle("counts");
-   hDelila0[itna1->first]->GetXaxis()->SetTitle("keV");
-   fOutput->Add(hDelila0[itna1->first]);
-   
-   hDelila_single[itna1->first] = new TH1F(Form("%s_single",itna1->second.c_str()), Form("%s_single",itna1->second.c_str()), 4096, -0.5, 16383.5);
-   hDelila_single[itna1->first]->GetYaxis()->SetTitle("counts");
-   hDelila_single[itna1->first]->GetXaxis()->SetTitle("keV");
-   fOutput->Add(hDelila_single[itna1->first]);
-   
-   
-   hDelilaCS[itna1->first] = new TH1F(Form("%s_CS",itna1->second.c_str()), Form("%s_CS",itna1->second.c_str()), 4096, -0.5, 16383.5);
-   hDelilaCS[itna1->first]->GetYaxis()->SetTitle("counts");
-   hDelilaCS[itna1->first]->GetXaxis()->SetTitle("keV");
-   fOutput->Add(hDelilaCS[itna1->first]);
-   
-   hDelilaDC[itna1->first] = new TH1F(Form("%s_DC",itna1->second.c_str()), Form("%s_DC",itna1->second.c_str()), 4096, -0.5, 16383.5);
-   hDelilaDC[itna1->first]->GetYaxis()->SetTitle("counts");
-   hDelilaDC[itna1->first]->GetXaxis()->SetTitle("keV");
-   fOutput->Add(hDelilaDC[itna1->first]);
-   
-   hDelilaCS_DC[itna1->first] = new TH1F(Form("%s_CS_DC",itna1->second.c_str()), Form("%s_CS_DC",itna1->second.c_str()), 4096, -0.5, 16383.5);
-   hDelilaCS_DC[itna1->first]->GetYaxis()->SetTitle("counts");
-   hDelilaCS_DC[itna1->first]->GetXaxis()->SetTitle("keV");
-   fOutput->Add(hDelilaCS_DC[itna1->first]);
       
+      
+      if ((itna1->first == 7)&& has_detector["Elissa"]){
+        hDelila0[itna1->first] = new TH1F(Form("%s",itna1->second.c_str()), Form("%s before EventB",itna1->second.c_str()), 4096, -0.5, 16383.5);
+        hDelila0[itna1->first]->GetYaxis()->SetTitle("counts");
+        hDelila0[itna1->first]->GetXaxis()->SetTitle("keV");
+        fOutput->Add(hDelila0[itna1->first]);
+        
+        hDelila_single[itna1->first] = new TH1F(Form("%s_single",itna1->second.c_str()), Form("%s_single",itna1->second.c_str()), 4096, -0.5, 16383.5);
+        hDelila_single[itna1->first]->GetYaxis()->SetTitle("counts");
+        hDelila_single[itna1->first]->GetXaxis()->SetTitle("keV");
+        fOutput->Add(hDelila_single[itna1->first]);
+        
+      } else {
+      
+        hDelila0[itna1->first] = new TH1F(Form("%s",itna1->second.c_str()), Form("%s before EventB",itna1->second.c_str()), 4096, -0.5, 16383.5);
+        hDelila0[itna1->first]->GetYaxis()->SetTitle("counts");
+        hDelila0[itna1->first]->GetXaxis()->SetTitle("keV");
+        fOutput->Add(hDelila0[itna1->first]);
+        
+        hDelila_single[itna1->first] = new TH1F(Form("%s_single",itna1->second.c_str()), Form("%s_single",itna1->second.c_str()), 4096, -0.5, 16383.5);
+        hDelila_single[itna1->first]->GetYaxis()->SetTitle("counts");
+        hDelila_single[itna1->first]->GetXaxis()->SetTitle("keV");
+        fOutput->Add(hDelila_single[itna1->first]);
+   
+        hDelilaCS[itna1->first] = new TH1F(Form("%s_CS",itna1->second.c_str()), Form("%s_CS",itna1->second.c_str()), 4096, -0.5, 16383.5);
+        hDelilaCS[itna1->first]->GetYaxis()->SetTitle("counts");
+        hDelilaCS[itna1->first]->GetXaxis()->SetTitle("keV");
+        fOutput->Add(hDelilaCS[itna1->first]);
+        
+        hDelilaDC[itna1->first] = new TH1F(Form("%s_DC",itna1->second.c_str()), Form("%s_DC",itna1->second.c_str()), 4096, -0.5, 16383.5);
+        hDelilaDC[itna1->first]->GetYaxis()->SetTitle("counts");
+        hDelilaDC[itna1->first]->GetXaxis()->SetTitle("keV");
+        fOutput->Add(hDelilaDC[itna1->first]);
+        
+        hDelilaCS_DC[itna1->first] = new TH1F(Form("%s_CS_DC",itna1->second.c_str()), Form("%s_CS_DC",itna1->second.c_str()), 4096, -0.5, 16383.5);
+        hDelilaCS_DC[itna1->first]->GetYaxis()->SetTitle("counts");
+        hDelilaCS_DC[itna1->first]->GetXaxis()->SetTitle("keV");
+        fOutput->Add(hDelilaCS_DC[itna1->first]);
+      };
   };
   
   
