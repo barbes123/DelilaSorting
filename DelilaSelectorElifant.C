@@ -1031,7 +1031,9 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
 
 //     if (debug){std::cout<<"I am doing entry here, ch:"<< daq_ch << "\n";}
     
-    DelilaEvent_.fEnergy = fEnergyLong;
+    if (domain != channel_trg) DelilaEvent_.fEnergy = fEnergyLong;
+    
+    
     
     if ((DelilaEvent_.Energy_kev < LUT_DELILA[daq_ch].threshold)&&(DelilaEvent_.det_def < 9)) return kTRUE;
     
