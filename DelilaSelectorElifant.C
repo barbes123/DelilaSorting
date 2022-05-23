@@ -1571,6 +1571,8 @@ void DelilaSelectorElifant::TreatElissaSingle()
     hAmax->Fill(DelilaEvent_.Amax);
     mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
+    mDelila->Fill(domain,DelilaEvent_.Energy_kev);
+
     
     if (blFillAmaxEnergyDom) mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     
