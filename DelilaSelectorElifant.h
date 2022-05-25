@@ -185,6 +185,8 @@ public :
   TH1F* hTriggerDomain;
   
   TH1F* hdelilaQu_size;
+  TH1F* hdelilaPreQu_size; //number of validated events in preQu
+
   
   TH2F* mDelila;
   TH2F* mElissa;

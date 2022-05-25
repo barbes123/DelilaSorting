@@ -537,6 +537,11 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    hdelilaQu_size->GetYaxis()->SetTitle("counts");
    fOutput->Add(hdelilaQu_size);
    
+   hdelilaPreQu_size = new TH1F("hdelilaPreQu_size", "hdelilaPreQu_size", 100,0,100);
+   hdelilaPreQu_size->GetXaxis()->SetTitle("size");
+   hdelilaPreQu_size->GetYaxis()->SetTitle("counts");
+   fOutput->Add(hdelilaPreQu_size);
+   
    
    
    mThetaPhi = new TH2F("mThetaPhi", "mThetaPhi", 90,60,150,360,0,360);
@@ -935,17 +940,19 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    
    
        
-   std::map<int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
-    for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
-        if ((LUT_DELILA[it_lut_->first].detType == 1)||(LUT_DELILA[it_lut_->first].detType == 3)){
-            int dom = LUT_DELILA[it_lut_->first].dom;
-            mEnergy_time_diff[dom] = new TH2F(Form("mEnergy_time_diff_dom%i",dom), Form("mEnergy_time_diff_dom%i",dom), 4096, -0.5, 65535.5, 10e3, -1e5, 9e5);
-            mEnergy_time_diff[dom] ->GetXaxis()->SetTitle("16 keV / bin");
-            mEnergy_time_diff[dom] ->GetYaxis()->SetTitle("100 ps / bin");
-            mEnergy_time_diff[dom]->SetTitle(" Time Diff Event.Time - Bunch.Time ");
-            fOutput->Add(mEnergy_time_diff[dom]); 
+  if (blFold){
+    std::map<int, TDelilaDetector > ::iterator it_lut_ = LUT_DELILA.begin();
+        for (; it_lut_ != LUT_DELILA.end(); ++it_lut_) {
+            if ((LUT_DELILA[it_lut_->first].detType == 1)||(LUT_DELILA[it_lut_->first].detType == 3)){
+                int dom = LUT_DELILA[it_lut_->first].dom;
+                mEnergy_time_diff[dom] = new TH2F(Form("mEnergy_time_diff_dom%i",dom), Form("mEnergy_time_diff_dom%i",dom), 4096, -0.5, 65535.5, 10e3, -1e5, 9e5);
+                mEnergy_time_diff[dom] ->GetXaxis()->SetTitle("16 keV / bin");
+                mEnergy_time_diff[dom] ->GetYaxis()->SetTitle("100 ps / bin");
+                mEnergy_time_diff[dom]->SetTitle(" Time Diff Event.Time - Bunch.Time ");
+                fOutput->Add(mEnergy_time_diff[dom]); 
+            };
         };
-    };
+  };
 
 //   TString option = GetOption();
 //   toks = option.Tokenize(",");
@@ -1090,6 +1097,8 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
         return kTRUE;
      }else if (DelilaEvent_.det_def == 98){
         return kTRUE;
+     }else if ((DelilaEvent_.det_def == 99) && blIsWindow){
+        return kTRUE;
      }else if (DelilaEvent_.det_def == 8){
           TreatNeutronSingle();
      }else if ((DelilaEvent_.det_def == 7) && has_detector["Elissa"]){
@@ -1104,8 +1113,8 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     
   if (debug){std::cout<<"I did TreatDelilaEvent_() \n";}
   
-//   EventBuilderPreTrigger();
-    EventBuilderSimple();
+    EventBuilderPreTrigger();
+//      EventBuilderSimple();
   
 
   if ((entry) % int(nb_entries / 100) == 0 || (entry) % 100000 == 0) {
@@ -1438,7 +1447,7 @@ void DelilaSelectorElifant::cs()
 //                  std::cout<<" coinc_gates "<<det<<" "<< coinc_gates[det*10+5] <<" "<<time_diff_bgo << " \n";
                  if (abs(time_diff_bgo) < coinc_gates[det*10+5]) //10000)
                  {
-                    (*it_ev__).CS = 1;  std::cout<<" here cs \n";
+                    (*it_ev__).CS = 1; // std::cout<<" here cs \n";
                  }else{
                     last_bgo_time[cs_dom] = -1;
                  };                 
@@ -1479,7 +1488,7 @@ void DelilaSelectorElifant::cs()
 //                  std::cout<<"time_diff_bgo back "<<time_diff_bgo<<" id "<<det*10+5 <<" "<<coinc_gates[det*10+5]<<"\n";
                  if (abs(time_diff_bgo) < coinc_gates[det*10+5]) //10000)
                  {
-                      (*it_ev__).CS = 1;   std::cout<<" here cs \n";
+                      (*it_ev__).CS = 1; //  std::cout<<" here cs \n";
                  }else{
                      last_bgo_time[cs_dom] = -1;
                  };
@@ -1654,7 +1663,6 @@ void DelilaSelectorElifant::CheckPreQu()
 void DelilaSelectorElifant::MovePreQu2Qu()
 {
     if (delilaPreQu.empty()) return;
-    
     if (!delilaQu.empty()) {
         std::cout<<"CheckPreQu delilaQu is not empty \n";
         delilaQu.clear();
@@ -1663,11 +1671,15 @@ void DelilaSelectorElifant::MovePreQu2Qu()
     std::deque<DelilaEvent>::iterator it_= delilaPreQu.begin();
     double time_diff_temp;
     
+    int nval = 0;
+    
     for (; it_!= delilaPreQu.end();++it_){
            time_diff_temp = it_->Time - DelilaEvent_.Time;                      
-           if (abs(time_diff_temp) < pre_event_length) delilaQu.push_back(*it_);
-//            std::cout<<"time_diff_temp  "<< time_diff_temp << " \n";
+           if (abs(time_diff_temp) < pre_event_length) {delilaQu.push_back(*it_); nval++;};
     };
+    
+    hdelilaPreQu_size->Fill(nval);
+    
 //     std::cout<<"PreQueSize is "<< delilaPreQu.size() << " \n";
 //     std::cout<<"delilaQueSize is "<< delilaQu.size() << " \n";
     
@@ -1712,11 +1724,11 @@ void DelilaSelectorElifant::EventBuilderSimple()
 
 void DelilaSelectorElifant::EventBuilderPreTrigger()
 {
-//     std::cout<<" line 1685 \n";
     if (blIsWindow){//open
        double time_diff_trigger = DelilaEvent_.Time - TriggerTimeFlag;
+//         std::cout<<" time_diff_trigger  "<<time_diff_trigger<<"\n";
+
        if (abs(time_diff_trigger) > event_length){//close event
-//            std::cout<<" gates 33 "<<coinc_gates[33]<<"\n";
            if (blTimeAlignement)    TimeAlignementTrigger();
            if (blCS)                cs();
            if (blGammaGamma)        TreatGammaGammaCoinc();
@@ -1724,23 +1736,22 @@ void DelilaSelectorElifant::EventBuilderPreTrigger()
            if (blOutTree)           FillOutputTree();
            
            hdelilaQu_size->Fill(delilaQu.size());          
-           
            delilaQu.clear();
            delilaPreQu.clear();
-           blIsTrigger = false;
+           delilaPreQu.push_back(DelilaEvent_);
+
            blIsWindow = false;
-           
+            
            if (TriggerDecision()) SetUpNewTrigger();          
-           
        }else{
-//           std::cout<<" line 1705 \n";
+//            std::cout<<" line 1742 "<< DelilaEvent_.det_def << " \n";
            hDelila_single[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev);
            DelilaEvent_.trg = trigger_cnt;
            delilaQu.push_back(DelilaEvent_);
        };
        
    }else{//closed
-       if (TriggerDecision()) {MovePreQu2Qu(); SetUpNewTrigger();}
+       if (TriggerDecision()) {SetUpNewTrigger(); MovePreQu2Qu();}
        else{ 
 //            CheckPreQu();
            DelilaEvent_.trg = trigger_cnt;
@@ -1756,11 +1767,11 @@ void DelilaSelectorElifant::SetUpNewTrigger(){
     
     hTriggerTrigger->Fill(DelilaEvent_.Time - LastTriggerEvent.Time);
     hTriggerDomain->Fill(DelilaEvent_.domain);
-    LastTriggerEvent = DelilaEvent_;
     
+    LastTriggerEvent = DelilaEvent_;
     if (blAddTriggerToQueue) delilaQu.push_back(DelilaEvent_);
     
-    TriggerTimeFlag = DelilaEvent_.Time;// - pre_event_length;
+    TriggerTimeFlag = DelilaEvent_.Time - pre_event_length;
     
 //     std::cout<<" TriggerTimeFlag is "<<TriggerTimeFlag<<" DelilaEvent_.Time "<<DelilaEvent_.Time<<"  \n";  
     
