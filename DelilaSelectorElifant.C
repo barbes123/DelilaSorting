@@ -1630,13 +1630,12 @@ void DelilaSelectorElifant::TreatElissaSingle()
         //     hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
         mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
         if (blFillAmaxEnergyDom) mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
+        if (blDebugElissa) std::cout << trap_max << " " << trap_min <<" Amax "<<DelilaEvent_.Amax<< endl;   
     };
     DelilaEvent_.Energy_kev = CalibDet(DelilaEvent_.fEnergy, DelilaEvent_.channel);
 
     hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
     mElissa->Fill(DelilaEvent_.domain, DelilaEvent_.Energy_kev);
-    
-    if (blDebugElissa) cout << trap_max << " " << trap_min <<" Amax "<<DelilaEvent_.Amax<< endl;   
     
 }
 
