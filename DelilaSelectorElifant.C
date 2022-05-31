@@ -41,7 +41,9 @@ bool blCS                   = true;
 bool blOutTree              = false;
 bool blFold                 = false;
 bool blTimeAlignement       = true;
-bool blFillAmaxEnergyDom    = true;
+////////////////////////////////ELISSA part ////////////////////////////////////////////
+bool blFillAmaxEnergyDom    = false;
+bool blElissaPSD            = false;
 ////////////////////////////////Please, DO NOT modify ////////////////////////////////////////////
 bool blIsTrigger            = false; //the SimpleTrigger is open
 bool blIsWindow             = false; //the preTrigger is open
@@ -54,7 +56,6 @@ bool blDebugElissa    = false;
 ULong64_t trigger_cnt = 0;
 ULong64_t trigger_events = 0;
 
-// const int NumberOfClovers = 2;
 const int max_domain = 500;
 const int nbr_of_ch = 500;
 // ULong64_t lastTimeStampTrigger = 0;
@@ -1618,22 +1619,22 @@ void DelilaSelectorElifant::TreatNeutronSingle()
 
 void DelilaSelectorElifant::TreatElissaSingle()
 {
-    vector<float> data_fil=DelilaSelectorElifant::trapezoidal(fSignal, 1000, 20, 0);//to be checked if signals do not present
-    float trap_max=*max_element(data_fil.begin(),data_fil.end());
-    float trap_min=*min_element(data_fil.begin(),data_fil.end());
-    DelilaEvent_.Amax=trap_max-trap_min;
     
+    if (blElissaPSD){
+    
+        vector<float> data_fil=DelilaSelectorElifant::trapezoidal(fSignal, 1000, 20, 0);//to be checked if signals do not present
+        float trap_max=*max_element(data_fil.begin(),data_fil.end());
+        float trap_min=*min_element(data_fil.begin(),data_fil.end());
+        DelilaEvent_.Amax=trap_max-trap_min;
+        hAmax->Fill(DelilaEvent_.Amax);
+        //     hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
+        mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
+        if (blFillAmaxEnergyDom) mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
+    };
     DelilaEvent_.Energy_kev = CalibDet(DelilaEvent_.fEnergy, DelilaEvent_.channel);
 
-    
-    hAmax->Fill(DelilaEvent_.Amax);
-//     hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
-    mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
     mElissa->Fill(DelilaEvent_.domain, DelilaEvent_.Energy_kev);
-
-    
-    if (blFillAmaxEnergyDom) mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     
     if (blDebugElissa) cout << trap_max << " " << trap_min <<" Amax "<<DelilaEvent_.Amax<< endl;   
     
