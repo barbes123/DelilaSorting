@@ -475,6 +475,11 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    hTimeDiffPulser = new TH1F("hTimeDiffPulser", "hTimeDiffPulser", 1000, -99.5, 899.5);
    fOutput->Add(hTimeDiffPulser);
 
+   mEnergyDiff = new TH2F("mEnergyDiff", "mEnergyDiff", 4096, -0.5, 16383.5, 4096, -0.5, 16383.5);
+   mEnergyDiff->GetXaxis()->SetTitle("E#gamma-E#gamma, keV");
+   mEnergyDiff->GetYaxis()->SetTitle("E#gamma+E#gamma, keV");
+   fOutput->Add(mEnergyDiff);
+
    mDelila_raw = new TH2F("mDelila_raw", "mDelila_raw", max_domain, -0.5, max_domain-0.5, 16384, -0.5, 16383.5);
    mDelila_raw->GetXaxis()->SetTitle("domain");
    mDelila_raw->GetYaxis()->SetTitle("ADC channels");   
@@ -1251,7 +1256,8 @@ void DelilaSelectorElifant::TreatGammaGammaCoinc()
              if (it1_ == it2_) continue;              
              if ((it2_->det_def != 1 )&&(it2_->det_def != 3 )&&(it2_->det_def != 7 )) continue;
              int coinc_id = GetCoinc_det_def(it1_->det_def, it2_->det_def);
-;
+
+
 //              if (coinc_id == 77) continue;
              //Check that daq_ch is defined in LUT
             std::map<UInt_t, Float_t> ::iterator it_c_gates_ = coinc_gates.find(coinc_id);
@@ -1275,9 +1281,10 @@ void DelilaSelectorElifant::TreatGammaGammaCoinc()
             hCoincID->Fill(coinc_id);
                double_t delta_theta = it1_->theta - it2_->theta;
             if (abs(time_diff_gg) < coinc_gates[coinc_id]){
-                  mGG[coinc_id]->Fill(it_dom1_->Energy_kev, it_dom2_->Energy_kev);
-                  nmult[coinc_id]++;
-                  if (coinc_id == 37) it_dom1_->coincID = 7;
+                mGG[coinc_id]->Fill(it_dom1_->Energy_kev, it_dom2_->Energy_kev);
+                nmult[coinc_id]++;
+                if (coinc_id == 37) it_dom1_->coincID = 7;
+	      	if (coinc_id == 33) mEnergyDiff->Fill(it1_->Energy_kev + it2_->Energy_kev, TMath::Abs(it1_->Energy_kev - it2_->Energy_kev));
               };
         };
 //                     std::cout<<"line 1268 \n";
