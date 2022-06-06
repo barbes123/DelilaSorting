@@ -307,6 +307,18 @@ void DelilaSelectorElifant::Read_Confs() {
   }
   lookuptable.close();
   }
+  
+  std::map<std::string, bool>::iterator  it_has_det_ = has_detector.begin();
+  bool blAnyDetector = false;
+  for (; it_has_det_!=has_detector.end(); ++it_has_det_){
+      if (it_has_det_ ->second) blAnyDetector=true;
+  };
+  if (!blAnyDetector){
+      std::cout<<"Terminated. No detectors are defined in LUT_CONF.dat. Add at least one detector type \n"<<
+      "1 - Clover (/HPGe); \n"<< "2 - segment; \n" << "3 - LaBr; \n" << "4 - CsI (back) \n"  << "5 - BGO-side; \n" <<  "6 - BGO-front; \n" <<  "7 - Elissa(/Si); \n" <<  "8 - Neutron; \n"  "9 - pulser; \n";
+      exit(0);
+  };
+  
   std::cout << " done" << std::endl;
 }
 
