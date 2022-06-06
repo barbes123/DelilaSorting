@@ -194,6 +194,7 @@ public :
   TH2F* mDelilaCS;
   TH2F* mDelilaDC;//keV
   TH2F* mDelilaCS_DC;//keV
+  TH2F* mEnergyDiff;
   
   TH2F* mDelila_long;
   TH2F* mDelila_raw_long;

@@ -41,7 +41,9 @@ bool blCS                   = true;
 bool blOutTree              = false;
 bool blFold                 = false;
 bool blTimeAlignement       = true;
-bool blFillAmaxEnergyDom    = true;
+////////////////////////////////ELISSA part ////////////////////////////////////////////
+bool blFillAmaxEnergyDom    = false;
+bool blElissaPSD            = false;
 ////////////////////////////////Please, DO NOT modify ////////////////////////////////////////////
 bool blIsTrigger            = false; //the SimpleTrigger is open
 bool blIsWindow             = false; //the preTrigger is open
@@ -54,7 +56,6 @@ bool blDebugElissa    = false;
 ULong64_t trigger_cnt = 0;
 ULong64_t trigger_events = 0;
 
-// const int NumberOfClovers = 2;
 const int max_domain = 500;
 const int nbr_of_ch = 500;
 // ULong64_t lastTimeStampTrigger = 0;
@@ -473,6 +474,11 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    
    hTimeDiffPulser = new TH1F("hTimeDiffPulser", "hTimeDiffPulser", 1000, -99.5, 899.5);
    fOutput->Add(hTimeDiffPulser);
+
+   mEnergyDiff = new TH2F("mEnergyDiff", "mEnergyDiff", 4096, -0.5, 16383.5, 4096, -0.5, 16383.5);
+   mEnergyDiff->GetXaxis()->SetTitle("E#gamma-E#gamma, keV");
+   mEnergyDiff->GetYaxis()->SetTitle("E#gamma+E#gamma, keV");
+   fOutput->Add(mEnergyDiff);
 
    mDelila_raw = new TH2F("mDelila_raw", "mDelila_raw", max_domain, -0.5, max_domain-0.5, 16384, -0.5, 16383.5);
    mDelila_raw->GetXaxis()->SetTitle("domain");
@@ -1250,7 +1256,8 @@ void DelilaSelectorElifant::TreatGammaGammaCoinc()
              if (it1_ == it2_) continue;              
              if ((it2_->det_def != 1 )&&(it2_->det_def != 3 )&&(it2_->det_def != 7 )) continue;
              int coinc_id = GetCoinc_det_def(it1_->det_def, it2_->det_def);
-;
+
+
 //              if (coinc_id == 77) continue;
              //Check that daq_ch is defined in LUT
             std::map<UInt_t, Float_t> ::iterator it_c_gates_ = coinc_gates.find(coinc_id);
@@ -1274,9 +1281,10 @@ void DelilaSelectorElifant::TreatGammaGammaCoinc()
             hCoincID->Fill(coinc_id);
                double_t delta_theta = it1_->theta - it2_->theta;
             if (abs(time_diff_gg) < coinc_gates[coinc_id]){
-                  mGG[coinc_id]->Fill(it_dom1_->Energy_kev, it_dom2_->Energy_kev);
-                  nmult[coinc_id]++;
-                  if (coinc_id == 37) it_dom1_->coincID = 7;
+                mGG[coinc_id]->Fill(it_dom1_->Energy_kev, it_dom2_->Energy_kev);
+                nmult[coinc_id]++;
+                if (coinc_id == 37) it_dom1_->coincID = 7;
+	      	if (coinc_id == 33) mEnergyDiff->Fill(it1_->Energy_kev + it2_->Energy_kev, TMath::Abs(it1_->Energy_kev - it2_->Energy_kev));
               };
         };
 //                     std::cout<<"line 1268 \n";
@@ -1618,24 +1626,23 @@ void DelilaSelectorElifant::TreatNeutronSingle()
 
 void DelilaSelectorElifant::TreatElissaSingle()
 {
-    vector<float> data_fil=DelilaSelectorElifant::trapezoidal(fSignal, 1000, 20, 0);//to be checked if signals do not present
-    float trap_max=*max_element(data_fil.begin(),data_fil.end());
-    float trap_min=*min_element(data_fil.begin(),data_fil.end());
-    DelilaEvent_.Amax=trap_max-trap_min;
     
+    if (blElissaPSD){
+    
+        vector<float> data_fil=DelilaSelectorElifant::trapezoidal(fSignal, 1000, 20, 0);//to be checked if signals do not present
+        float trap_max=*max_element(data_fil.begin(),data_fil.end());
+        float trap_min=*min_element(data_fil.begin(),data_fil.end());
+        DelilaEvent_.Amax=trap_max-trap_min;
+        hAmax->Fill(DelilaEvent_.Amax);
+        //     hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
+        mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
+        if (blFillAmaxEnergyDom) mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
+        if (blDebugElissa) std::cout << trap_max << " " << trap_min <<" Amax "<<DelilaEvent_.Amax<< endl;   
+    };
     DelilaEvent_.Energy_kev = CalibDet(DelilaEvent_.fEnergy, DelilaEvent_.channel);
 
-    
-    hAmax->Fill(DelilaEvent_.Amax);
-//     hAmax->Fill(DelilaEvent_.Amax/DelilaEvent_.Energy_kev);
-    mAmaxEnergy->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
     hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
     mElissa->Fill(DelilaEvent_.domain, DelilaEvent_.Energy_kev);
-
-    
-    if (blFillAmaxEnergyDom) mAmaxEnergyDom[DelilaEvent_.domain]->Fill(DelilaEvent_.Energy_kev,DelilaEvent_.Amax);
-    
-    if (blDebugElissa) cout << trap_max << " " << trap_min <<" Amax "<<DelilaEvent_.Amax<< endl;   
     
 }
 
