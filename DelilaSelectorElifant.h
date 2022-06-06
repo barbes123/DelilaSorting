@@ -387,7 +387,7 @@ void DelilaSelectorElifant::Init(TTree *tree)
   lastDelilaTime = 0;
   
 //   Read_ELIADE_LookUpTable();
-  Read_TimeAlignment_LookUpTable();
+//   Read_TimeAlignment_LookUpTable();
   
 //   Print_ELIADE_LookUpTable();
   
