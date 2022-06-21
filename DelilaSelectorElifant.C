@@ -41,6 +41,7 @@ bool blCS                   = true;
 bool blOutTree              = false;
 bool blFold                 = false;
 bool blTimeAlignement       = true;
+bool blDelilaLongSpectra    = false;
 ////////////////////////////////ELISSA part ////////////////////////////////////////////
 bool blFillAmaxEnergyDom    = false;
 bool blElissaPSD            = false;
@@ -527,26 +528,27 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    fOutput->Add(mDelilaCS_DC);
    
    ////////////////
-   mDelila_long = new TH2F("mDelila_long", "mDelila_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
-   mDelila_long->GetXaxis()->SetTitle("domain");
-   mDelila_long->GetYaxis()->SetTitle("keV");
-   fOutput->Add(mDelila_long);
-   
-   mDelilaDC_long = new TH2F("mDelilaDC_long", "mDelilaDC_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
-   mDelilaDC_long->GetXaxis()->SetTitle("domain");
-   mDelilaDC_long->GetYaxis()->SetTitle("keV");
-   fOutput->Add(mDelilaDC_long);   
-   
-   mDelilaCS_long = new TH2F("mDelilaCS_long", "mDelilaCS_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
-   mDelilaCS_long->GetXaxis()->SetTitle("domain");
-   mDelilaCS_long->GetYaxis()->SetTitle("keV");
-   fOutput->Add(mDelilaCS_long);
-   
-   mDelilaCS_DC_long = new TH2F("mDelilaCS_DC_long", "mDelilaCS_DC_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
-   mDelilaCS_DC_long->GetXaxis()->SetTitle("domain");
-   mDelilaCS_DC_long->GetYaxis()->SetTitle("keV");
-   fOutput->Add(mDelilaCS_DC_long);
-   
+   if (blDelilaLongSpectra){
+    mDelila_long = new TH2F("mDelila_long", "mDelila_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
+    mDelila_long->GetXaxis()->SetTitle("domain");
+    mDelila_long->GetYaxis()->SetTitle("keV");
+    fOutput->Add(mDelila_long);
+    
+    mDelilaDC_long = new TH2F("mDelilaDC_long", "mDelilaDC_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
+    mDelilaDC_long->GetXaxis()->SetTitle("domain");
+    mDelilaDC_long->GetYaxis()->SetTitle("keV");
+    fOutput->Add(mDelilaDC_long);   
+    
+    mDelilaCS_long = new TH2F("mDelilaCS_long", "mDelilaCS_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
+    mDelilaCS_long->GetXaxis()->SetTitle("domain");
+    mDelilaCS_long->GetYaxis()->SetTitle("keV");
+    fOutput->Add(mDelilaCS_long);
+    
+    mDelilaCS_DC_long = new TH2F("mDelilaCS_DC_long", "mDelilaCS_DC_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
+    mDelilaCS_DC_long->GetXaxis()->SetTitle("domain");
+    mDelilaCS_DC_long->GetYaxis()->SetTitle("keV");
+    fOutput->Add(mDelilaCS_DC_long);
+   };
    ///////////////////////
    
    
@@ -680,25 +682,28 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
             fOutput->Add(mGG_CS_DC[itna->first]);
             
             //////////////////////////////
-            mGG_long[itna->first] = new TH2F(Form("%s_long",itna->second.c_str()), Form("%s_long",itna->second.c_str()), 4096, -0.5,  65535.5, 4096, -0.5,  65535.5);
-            mGG_long[itna->first]->GetXaxis()->SetTitle("keV");
-            mGG_long[itna->first]->GetYaxis()->SetTitle("keV");
-            fOutput->Add(mGG_long[itna->first]);
-  
-            mGG_CS_long[itna->first] = new TH2F(Form("%s_CS_long",itna->second.c_str()), Form("%s_CS_long",itna->second.c_str()), 4096, -0.5,  65535.5, 4096, -0.5,  65535.5);
-            mGG_CS_long[itna->first]->GetXaxis()->SetTitle("keV");
-            mGG_CS_long[itna->first]->GetYaxis()->SetTitle("keV");
-            fOutput->Add(mGG_CS_long[itna->first]);
+            if (blDelilaLongSpectra){
                 
-            mGG_DC_long[itna->first] = new TH2F(Form("%s_DC_long",itna->second.c_str()), Form("%s_DC_long",itna->second.c_str()), 4096, -0.5,  65535.5, 4096, -0.5,  65535.5);
-            mGG_DC_long[itna->first]->GetXaxis()->SetTitle("keV");
-            mGG_DC_long[itna->first]->GetYaxis()->SetTitle("keV");
-            fOutput->Add(mGG_DC_long[itna->first]);
-   
-            mGG_CS_DC_long[itna->first] = new TH2F(Form("%s_CS_DC_long",itna->second.c_str()), Form("%s_CS_DC_long",itna->second.c_str()), 4096, -0.5,  65535.5, 4096, -0.5,  65535.5);
-            mGG_CS_DC_long[itna->first]->GetXaxis()->SetTitle("keV");
-            mGG_CS_DC_long[itna->first]->GetYaxis()->SetTitle("keV");
-            fOutput->Add(mGG_CS_DC_long[itna->first]);
+                mGG_long[itna->first] = new TH2F(Form("%s_long",itna->second.c_str()), Form("%s_long",itna->second.c_str()), 4096, -0.5,  65535.5, 4096, -0.5,  65535.5);
+                mGG_long[itna->first]->GetXaxis()->SetTitle("keV");
+                mGG_long[itna->first]->GetYaxis()->SetTitle("keV");
+                fOutput->Add(mGG_long[itna->first]);
+    
+                mGG_CS_long[itna->first] = new TH2F(Form("%s_CS_long",itna->second.c_str()), Form("%s_CS_long",itna->second.c_str()), 4096, -0.5,  65535.5, 4096, -0.5,  65535.5);
+                mGG_CS_long[itna->first]->GetXaxis()->SetTitle("keV");
+                mGG_CS_long[itna->first]->GetYaxis()->SetTitle("keV");
+                fOutput->Add(mGG_CS_long[itna->first]);
+                    
+                mGG_DC_long[itna->first] = new TH2F(Form("%s_DC_long",itna->second.c_str()), Form("%s_DC_long",itna->second.c_str()), 4096, -0.5,  65535.5, 4096, -0.5,  65535.5);
+                mGG_DC_long[itna->first]->GetXaxis()->SetTitle("keV");
+                mGG_DC_long[itna->first]->GetYaxis()->SetTitle("keV");
+                fOutput->Add(mGG_DC_long[itna->first]);
+    
+                mGG_CS_DC_long[itna->first] = new TH2F(Form("%s_CS_DC_long",itna->second.c_str()), Form("%s_CS_DC_long",itna->second.c_str()), 4096, -0.5,  65535.5, 4096, -0.5,  65535.5);
+                mGG_CS_DC_long[itna->first]->GetXaxis()->SetTitle("keV");
+                mGG_CS_DC_long[itna->first]->GetYaxis()->SetTitle("keV");
+                fOutput->Add(mGG_CS_DC_long[itna->first]);
+            };
             
             ///////////////////////////////
             
