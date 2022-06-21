@@ -20,7 +20,7 @@
     int             domain;
     UShort_t        cs_domain;
     int             channel;//ch daq
-    UShort_t        CS;//0 - no; 1 - yes
+    UShort_t        CS;//0 - no; 1 or 3 4 5 6 which one is fired
     double          Time;
     double          TimeTrg;
     Float_t         theta;
