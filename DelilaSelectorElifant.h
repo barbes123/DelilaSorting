@@ -413,6 +413,15 @@ void DelilaSelectorElifant::Init(TTree *tree)
   std::cout<<" LaBr   " << has_detector["LaBr"] <<"  \n";
   std::cout<<" ACS    " << has_detector["ACS"] <<"  \n";
   std::cout<<" Elissa " << has_detector["Elissa"] <<" \n";
+  
+  std::cout<<" === Trigger channel === \n";
+  
+  if (det_def_trg == -1){std::cout<<" No trigger \n";}
+  else if (det_def_trg == 0){std::cout<<" Domain: "<<detector_name[channel_trg]<< "\n";}
+  else if (det_def_trg > 0){std::cout<<" Any of "<<det_def_trg<<" "<<detector_name[det_def_trg]<< " detectors \n";}
+  else {std::cout<<" non correct trigger \n";};
+  
+  
   std::cout<<" === Time settings ps === \n";
   std::map<UInt_t, Float_t> ::iterator itcc_ = coinc_gates.begin();
   for (; itcc_ != coinc_gates.end(); ++itcc_) {

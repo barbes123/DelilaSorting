@@ -40,7 +40,7 @@ bool blGammaGamma           = true;
 bool blCS                   = true;
 bool blOutTree              = false;
 bool blFold                 = false;
-bool blTimeAlignement       = true;
+bool blTimeAlignement       = false;
 bool blDelilaLongSpectra    = false;
 ////////////////////////////////ELISSA part ////////////////////////////////////////////
 bool blFillAmaxEnergyDom    = false;
@@ -386,7 +386,9 @@ void DelilaSelectorElifant::Begin(TTree * tree)
   detector_name[6]="BGOf";     has_detector[detector_name[6]] = false;//front
   detector_name[7]="Elissa";   has_detector[detector_name[7]] = false;
   detector_name[8]="neutron";  has_detector[detector_name[8]] = false;
-  detector_name[9]="pulser";   has_detector[detector_name[9]] = false;  
+  detector_name[9]="pulser";   has_detector[detector_name[9]] = false;
+  detector_name[10]="core1";   has_detector[detector_name[10]] = true;
+  
 
   Read_Confs();
 
@@ -422,6 +424,7 @@ void DelilaSelectorElifant::Begin(TTree * tree)
     };
     
    Read_ELIADE_LookUpTable();
+   Print_ELIADE_LookUpTable();
    Read_TimeAlignment_LookUpTable();
    Print_TimeAlignment_LookUpTable();
 
@@ -498,7 +501,7 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
    mDelila_raw->GetYaxis()->SetTitle("ADC channels");   
    fOutput->Add(mDelila_raw);
    
-   mDelila = new TH2F("mDelila", "mDelila", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
+   mDelila = new TH2F("mDelila", "mDelila", max_domain, -0.5, max_domain-0.5, 16384, -0.5, 16383.5);
    mDelila->GetXaxis()->SetTitle("domain");
    mDelila->GetYaxis()->SetTitle("keV");
    fOutput->Add(mDelila);
@@ -512,39 +515,39 @@ void DelilaSelectorElifant::SlaveBegin(TTree * /*tree*/)
 //    };
    
    
-   mDelilaDC = new TH2F("mDelilaDC", "mDelilaDC", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
+   mDelilaDC = new TH2F("mDelilaDC", "mDelilaDC", max_domain,-0.5, max_domain-0.5, 16384, -0.5, 16383.5);
    mDelilaDC->GetXaxis()->SetTitle("domain");
    mDelilaDC->GetYaxis()->SetTitle("keV");
    fOutput->Add(mDelilaDC);   
    
-   mDelilaCS = new TH2F("mDelilaCS", "mDelilaCS", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
+   mDelilaCS = new TH2F("mDelilaCS", "mDelilaCS", max_domain, -0.5, max_domain-0.5, 16384, -0.5, 16383.5);
    mDelilaCS->GetXaxis()->SetTitle("domain");
    mDelilaCS->GetYaxis()->SetTitle("keV");
    fOutput->Add(mDelilaCS);
    
-   mDelilaCS_DC = new TH2F("mDelilaCS_DC", "mDelilaCS_DC", max_domain, 0, max_domain, 16384, -0.5, 16383.5);
+   mDelilaCS_DC = new TH2F("mDelilaCS_DC", "mDelilaCS_DC", max_domain, -0.5, max_domain-0.5, 16384, -0.5, 16383.5);
    mDelilaCS_DC->GetXaxis()->SetTitle("domain");
    mDelilaCS_DC->GetYaxis()->SetTitle("keV");
    fOutput->Add(mDelilaCS_DC);
    
    ////////////////
    if (blDelilaLongSpectra){
-    mDelila_long = new TH2F("mDelila_long", "mDelila_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
+    mDelila_long = new TH2F("mDelila_long", "mDelila_long", max_domain, -0.5, max_domain-0.5, 4096, -0.5,  65535.5);
     mDelila_long->GetXaxis()->SetTitle("domain");
     mDelila_long->GetYaxis()->SetTitle("keV");
     fOutput->Add(mDelila_long);
     
-    mDelilaDC_long = new TH2F("mDelilaDC_long", "mDelilaDC_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
+    mDelilaDC_long = new TH2F("mDelilaDC_long", "mDelilaDC_long", max_domain, -0.5, max_domain-0.5, 4096, -0.5,  65535.5);
     mDelilaDC_long->GetXaxis()->SetTitle("domain");
     mDelilaDC_long->GetYaxis()->SetTitle("keV");
     fOutput->Add(mDelilaDC_long);   
     
-    mDelilaCS_long = new TH2F("mDelilaCS_long", "mDelilaCS_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
+    mDelilaCS_long = new TH2F("mDelilaCS_long", "mDelilaCS_long", max_domain, -0.5, max_domain-0.5, 4096, -0.5,  65535.5);
     mDelilaCS_long->GetXaxis()->SetTitle("domain");
     mDelilaCS_long->GetYaxis()->SetTitle("keV");
     fOutput->Add(mDelilaCS_long);
     
-    mDelilaCS_DC_long = new TH2F("mDelilaCS_DC_long", "mDelilaCS_DC_long", max_domain, 0, max_domain, 4096, -0.5,  65535.5);
+    mDelilaCS_DC_long = new TH2F("mDelilaCS_DC_long", "mDelilaCS_DC_long", max_domain, -0.5, max_domain-0.5, 4096, -0.5,  65535.5);
     mDelilaCS_DC_long->GetXaxis()->SetTitle("domain");
     mDelilaCS_DC_long->GetYaxis()->SetTitle("keV");
     fOutput->Add(mDelilaCS_DC_long);
@@ -1080,11 +1083,10 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
 
 //     if (debug){std::cout<<"I am doing entry here, ch:"<< daq_ch << "\n";}
     
-    if (domain != channel_trg) DelilaEvent_.fEnergy = fEnergyLong;
+//     if (domain != channel_trg) DelilaEvent_.fEnergy = fEnergyLong;//why i was doing this??
+    DelilaEvent_.fEnergy = fEnergyLong;
     
-    
-    
-    if ((DelilaEvent_.fEnergy < LUT_DELILA[daq_ch].threshold)&&(DelilaEvent_.det_def < 9)) return kTRUE;
+    if (DelilaEvent_.fEnergy < LUT_DELILA[daq_ch].threshold) return kTRUE;
     
     DelilaEvent_.cs_domain = LUT_DELILA[daq_ch].cs_dom;
     DelilaEvent_.theta= LUT_DELILA[daq_ch].theta;
@@ -1117,28 +1119,66 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
 //      DelilaEvent_.Time=DelilaEvent_.Time - LUT_TA[domain];
      DelilaEvent_.Time=DelilaEvent_.Time - LUT_TA[domain];
     
-     if (DelilaEvent_.det_def == 9){//pulser
-        CheckPulserAllignement(90);
-        return kTRUE;
-     }else if (DelilaEvent_.det_def == 98){
-        return kTRUE;
-     }else if ((DelilaEvent_.det_def == 99) && blIsWindow){
-        return kTRUE;
-     }else if (DelilaEvent_.det_def == 8){
-          TreatNeutronSingle();
-     }else if ((DelilaEvent_.det_def == 7) && has_detector["Elissa"]){
-         TreatElissaSingle();
-     }else if (((DelilaEvent_.det_def==4)||(DelilaEvent_.det_def==5)||(DelilaEvent_.det_def==6))&&has_detector["BGO"]){
-         TreatBGOSingle();
-     }else if ((DelilaEvent_.det_def == 3) && has_detector["LaBr"]) {
-        TreatLaBrSingle();
-     }else if ((DelilaEvent_.det_def == 1) && has_detector["HPGe"] ){
-        TreatHpGeSingle();
+ switch (DelilaEvent_.det_def){
+          case 1:  { 
+             if (has_detector["HPGe"]) {TreatHpGeSingle();}
+                 else return kTRUE;
+             break;
+         };case 2:  { 
+             if (has_detector["SEG"]) {;}
+                 else return kTRUE;
+             break;
+         };case 3:  { 
+             if (has_detector["LaBr"]) {TreatLaBrSingle();}
+                else return kTRUE;
+             break;
+         };case 4:  { 
+             if (has_detector["CsI"]) {TreatBGOSingle();}
+                else return kTRUE;
+             break;
+         };case 5:  { 
+             if (has_detector["BGOs"]) {TreatBGOSingle();}
+                else return kTRUE;
+             break;
+         };case 6:  { 
+             if (has_detector["BGOf"]) {TreatBGOSingle();}
+                else return kTRUE;
+             break;
+         };case 7:  { 
+             if (has_detector["Elissa"]) {TreatElissaSingle();}
+                else return kTRUE;
+             break;
+         };case 8:  { 
+             if (has_detector["neutron"]) {TreatNeutronSingle();}
+                else return kTRUE;
+             break;
+         };case 9:  { 
+             if (has_detector["pulser"]) CheckPulserAllignement(90);
+                return kTRUE;
+             break;
+         };case 10:  { 
+             if (has_detector["core1"]) {TreatHpGeSingle();}
+                 else return kTRUE;
+             break;
+         }; case 98:  { 
+             return kTRUE;
+             break;
+         };
+          case 99:  { 
+             if (blIsWindow)  return kTRUE;
+             break;
+         };
+         default:  { //second core
+             std::cout<<"Warning Strange det_def "<< DelilaEvent_.det_def<<" \n";
+             return kTRUE;
+             break;
+         };
+         
      };
     
   if (debug){std::cout<<"I did TreatDelilaEvent_() \n";}
   
-    EventBuilderPreTrigger();
+//     EventBuilderPreTrigger();
 //      EventBuilderSimple();
   
 
@@ -1609,11 +1649,14 @@ void DelilaSelectorElifant::TreatLaBrSingle()
 
     
     double costheta = TMath::Cos(LUT_DELILA[daq_ch].theta);
-    if (beta >0) DelilaEvent_.EnergyDC = DelilaEvent_.Energy_kev*(1./sqrt(1 - beta*beta) * (1 - beta*costheta));
+    if (beta >0) {
+        DelilaEvent_.EnergyDC = DelilaEvent_.Energy_kev*(1./sqrt(1 - beta*beta) * (1 - beta*costheta));
+        mDelilaDC->Fill(domain,DelilaEvent_.EnergyDC);
+    };
     
     hDelila0[DelilaEvent_.det_def]->Fill(DelilaEvent_.Energy_kev); 
     mDelila->Fill(domain,DelilaEvent_.Energy_kev);
-    mDelilaDC->Fill(domain,DelilaEvent_.EnergyDC);
+    
 
     return;
 }
