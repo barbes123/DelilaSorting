@@ -1178,7 +1178,7 @@ Bool_t DelilaSelectorElifant::Process(Long64_t entry)
     
   if (debug){std::cout<<"I did TreatDelilaEvent_() \n";}
   
-//     EventBuilderPreTrigger();
+     EventBuilderPreTrigger();
 //      EventBuilderSimple();
   
 
